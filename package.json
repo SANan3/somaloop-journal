@@ -1,0 +1,8 @@
+{
+  "name": "somaloop-journal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SomaLoop: a morning somatic journal with a body map and a Claude read-back grounded in your own log.",
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SomaLoop Journal</title>
+<meta name="description" content="A morning somatic journal: mark how your body feels on a body map and get a read-back grounded in your own log.">
+<meta name="theme-color" content="#F6F8F8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='9' cy='13' r='6.2' fill='none' stroke='%2300BFAE' stroke-width='2.6'/%3E%3Ccircle cx='17' cy='13' r='6.2' fill='none' stroke='%2303786E' stroke-width='2.6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sen:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: phones get one column with the body map in the flow; laptops get the body map pinned on the left and the log or read-back on the right. */
+:root {
+  --bg: #F9F9F9; --surface: #FFFFFF; --ink: #0A0A0A; --ink-2: #55595A; --ink-3: #8C9090; --line: #E7E7E7;
+  --teal: #00D6C1; --teal-deep: #00877A; --teal-wash: #DDF8F4; --teal-ink: #00564E;
+  --body-base: #D8DDDC; --muscle: #F2F4F4; --muscle-hover: #E2F7F4; --outline: #8C9393;
+  --lv-tight: rgba(10,10,10,.25); --lv-tender: rgba(10,10,10,.5); --lv-sore: rgba(10,10,10,.8); --pain: #EE732B;
+  --area-tight: #A9EEE6; --area-tender: #2FD6C4; --area-sore: #00897C;
+  --pain-wash: #FDEDE3; --pain-ink: #8A3A0C; --heat: #00877A;
+  --font-ui: "Sen", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r-lg: 22px; --r-md: 14px; --r-pill: 999px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1313; --surface: #161D1D; --ink: #EDF0EF; --ink-2: #A6B0AF; --ink-3: #6F7A79; --line: #273130;
+  --teal: #1FE0CC; --teal-deep: #46D3C4; --teal-wash: #10332F; --teal-ink: #BFF4EC;
+  --body-base: #3A4545; --muscle: #26302F; --muscle-hover: #1C3D39; --outline: #6E7A79;
+  --lv-tight: rgba(237,240,239,.3); --lv-tender: rgba(237,240,239,.55); --lv-sore: rgba(237,240,239,.88); --pain: #FF8A4A;
+  --area-tight: #1D4D47; --area-tender: #13A091; --area-sore: #45EAD8;
+  --pain-wash: #3A2014; --pain-ink: #FFC9A8; --heat: #2FD3C2; color-scheme: dark} }
+:root[data-theme="dark"] {
+  --bg: #0E1313; --surface: #161D1D; --ink: #EDF0EF; --ink-2: #A6B0AF; --ink-3: #6F7A79; --line: #273130;
+  --teal: #1FE0CC; --teal-deep: #46D3C4; --teal-wash: #10332F; --teal-ink: #BFF4EC;
+  --body-base: #3A4545; --muscle: #26302F; --muscle-hover: #1C3D39; --outline: #6E7A79;
+  --lv-tight: rgba(237,240,239,.3); --lv-tender: rgba(237,240,239,.55); --lv-sore: rgba(237,240,239,.88); --pain: #FF8A4A;
+  --area-tight: #1D4D47; --area-tender: #13A091; --area-sore: #45EAD8;
+  --pain-wash: #3A2014; --pain-ink: #FFC9A8; --heat: #2FD3C2; color-scheme: dark}
+
+* { box-sizing: border-box }
+html { padding-top: env(safe-area-inset-top, 0px) }
+html, body { margin: 0 }
+[hidden] { display: none !important }
+#view { display: flex; flex-direction: column; gap: 20px }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.5; font-weight: 400;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button { font: inherit; color: inherit; cursor: pointer }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px }
+.app { max-width: 460px; margin: 0 auto; padding-block: 0 104px; display: flex; flex-direction: column; gap: 20px }
+
+/* Top */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; padding-block: 12px; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 0 0 100vmax var(--bg); clip-path: inset(0 -100vmax) }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 500; letter-spacing: .01em }
+.brand svg { width: 26px; height: 26px }
+.mode { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px }
+.mode button { border: 0; background: none; padding: 5px 12px; border-radius: var(--r-pill); font-size: 13px; color: var(--ink-2) }
+.mode button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 500 }
+.greet { display: flex; flex-direction: column; gap: 2px }
+.greet h1 { margin: 0; font-size: 26px; font-weight: 500; letter-spacing: -.01em; text-wrap: balance }
+.date { font-family: var(--font-data); font-size: 12px; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase }
+.banner { font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r-md); padding: 10px 12px }
+.banner b { color: var(--ink); font-weight: 500 }
+
+/* Section headings */
+.label { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 }
+.sect { display: flex; flex-direction: column; gap: 10px }
+.sect h2 { margin: 0; font-size: 17px; font-weight: 500 }
+.hint { margin: 0; font-size: 13px; color: var(--ink-2) }
+
+/* Chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px }
+.chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--r-pill); padding: 6px 14px; font-size: 14px; font-weight: 500; color: var(--ink); display: inline-flex; align-items: center; gap: 6px; transition: background .15s ease, color .15s ease, box-shadow .15s ease }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface) }
+.chip.sens[data-s="tight"] { border-color: var(--lv-tight) }
+.chip.sens[data-s="tender"] { border-color: var(--lv-tender) }
+.chip.sens[data-s="sore"] { border-color: var(--lv-sore) }
+.chip.sens[data-s="pain"] { border-color: var(--pain) }
+.chip.sens[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 20%, transparent), 0 0 12px color-mix(in srgb, var(--teal) 30%, transparent) }
+.chip.sens[data-s="pain"][aria-pressed="true"] { border-color: var(--pain); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pain) 20%, transparent), 0 0 12px color-mix(in srgb, var(--pain) 30%, transparent) }
+.chip.add { padding: 6px 11px; color: var(--ink-2); border-style: dashed }
+.chip.add svg { width: 14px; height: 14px }
+.def { margin: 0; font-size: 14px; color: var(--ink-2); min-height: 1.5em }
+.def b { color: var(--ink); font-weight: 600 }
+.seg4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px }
+.seg4 button { border: 0; border-radius: var(--r-pill); padding: 7px 4px; font-size: 13px; font-weight: 500; background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--ink); white-space: nowrap }
+.seg4 button[aria-pressed="true"] { background: var(--ink); color: var(--surface) }
+.sessions { display: flex; flex-direction: column; gap: 8px }
+.session { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px }
+.session-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 14px }
+.session-head .sname { font-weight: 600 }
+.session-head .shint { color: var(--ink-3); font-size: 13px }
+.addform { display: flex; gap: 8px; align-items: center }
+.addform input { flex: 1; min-width: 0; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 7px 14px }
+.addform input:focus { border-color: var(--teal); outline: none }
+.addform .btn, .addform .btn.primary { flex: 0 0 auto; width: auto; padding: 8px 16px; font-size: 14px }
+.d-tight { background: var(--area-tight) } .d-tender { background: var(--area-tender) } .d-sore { background: var(--area-sore) } .d-pain { background: var(--pain) }
+
+/* Body map */
+.mapwrap { position: relative; background: var(--surface); border-radius: var(--r-lg); padding: 18px 12px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; border: 1px solid var(--line) }
+.figure { height: min(62vh, 470px); width: auto; max-width: 100%; display: block; touch-action: manipulation }
+.figure .b { fill: var(--body-base) }
+.figure .x { fill: var(--outline); opacity: .6 }
+.figure .m { fill: var(--muscle); transition: fill .15s ease, fill-opacity .15s ease }
+.figure.live .m { cursor: pointer }
+.figure.live .m:hover { fill: var(--muscle-hover) }
+.figure, .figure * { -webkit-tap-highlight-color: transparent }
+.figure .m:focus { outline: none }
+.figure .m:focus-visible { stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke }
+.figure .m.last { stroke: color-mix(in srgb, var(--ink) 45%, transparent); stroke-width: 1.2; vector-effect: non-scaling-stroke }
+.figure .m.s-tight, .figure.live .m.s-tight:hover { fill: var(--area-tight) }
+.figure .m.s-tender, .figure.live .m.s-tender:hover { fill: var(--area-tender) }
+.figure .m.s-sore, .figure.live .m.s-sore:hover { fill: var(--area-sore) }
+.figure .m.s-pain, .figure.live .m.s-pain:hover { fill: var(--pain) }
+.figure .m.h1 { fill: var(--heat); fill-opacity: .25 } .figure .m.h2 { fill: var(--heat); fill-opacity: .55 } .figure .m.h3 { fill: var(--heat); fill-opacity: .9 }
+.figure .stop-a { stop-color: var(--outline) } .figure .stop-b { stop-color: var(--teal) }
+.side-tag { position: absolute; top: 2px; z-index: 1; font-family: var(--font-data); font-size: 11px; color: var(--ink-3); letter-spacing: .06em }
+.side-tag.l { left: 14px } .side-tag.r { right: 14px }
+.slides { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain }
+.slides::-webkit-scrollbar { display: none }
+.slide { flex: 0 0 100%; scroll-snap-align: center; scroll-snap-stop: always; position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 4px }
+.slide-cap { display: none; font-family: var(--font-data); font-size: 11px; color: var(--ink-3); letter-spacing: .06em; text-transform: uppercase }
+.maprow { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px }
+.clearmap { justify-self: end; border: 0; background: none; color: var(--ink-2); font-size: 13px; padding: 6px 4px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line) }
+.clearmap:disabled { color: var(--ink-3); opacity: .5; cursor: default; text-decoration: none }
+.scale { display: flex; flex-wrap: wrap; gap: 8px }
+.lvl { border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--r-pill); padding: 6px 14px; font-size: 14px; font-weight: 500; color: var(--ink); transition: background .15s ease, color .15s ease, box-shadow .15s ease }
+.lvl[data-s="tight"] { border-color: var(--lv-tight) } .lvl[data-s="tender"] { border-color: var(--lv-tender) } .lvl[data-s="sore"] { border-color: var(--lv-sore) } .lvl[data-s="pain"] { border-color: var(--pain) }
+.lvl[data-on="true"] { background: var(--ink); color: var(--surface); border-color: var(--teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 20%, transparent), 0 0 12px color-mix(in srgb, var(--teal) 30%, transparent) }
+.lvl[data-s="pain"][data-on="true"] { border-color: var(--pain); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pain) 20%, transparent), 0 0 12px color-mix(in srgb, var(--pain) 30%, transparent) }
+.def .linkbtn { padding: 0 2px; font-size: inherit }
+.toggle { display: grid; grid-template-columns: 1fr 1fr; width: 200px; background: var(--bg); border-radius: var(--r-pill); padding: 3px; border: 1px solid var(--line) }
+.toggle button { border: 0; background: none; border-radius: var(--r-pill); padding: 7px 0; font-size: 14px; color: var(--ink-2) }
+.toggle button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 500; box-shadow: 0 0 0 1.5px var(--teal) }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 8px 10px }
+.pair figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px }
+.pair figcaption { font-family: var(--font-data); font-size: 11px; color: var(--ink-3); letter-spacing: .06em; text-transform: uppercase }
+.pair .figure { height: 280px }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink-2); justify-content: center }
+.legend span { display: inline-flex; align-items: center; gap: 6px }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block }
+
+/* Marks list */
+.marks { display: flex; flex-direction: column; gap: 6px }
+.mark { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 8px 8px 8px 12px; font-size: 14px }
+.mark[data-s="tight"] { border-color: var(--lv-tight) } .mark[data-s="tender"] { border-color: var(--lv-tender) } .mark[data-s="sore"] { border-color: var(--lv-sore) } .mark[data-s="pain"] { border-color: var(--pain) }
+.mark .name { flex: 1; min-width: 0; font-weight: 500 }
+.mark .meta { color: color-mix(in srgb, var(--ink-3) 85%, var(--surface)); font-size: 12.5px; text-align: right }
+.mark .meta b { color: var(--ink-3); font-weight: 500 }
+.mark button { border: 0; background: none; width: 30px; height: 30px; border-radius: 50%; color: var(--ink-3); font-size: 18px; line-height: 1 }
+.mark button:hover { background: var(--bg); color: var(--ink) }
+.empty { font-size: 14px; color: var(--ink-3); padding: 4px 2px }
+
+.notewrap { position: relative }
+.notewrap textarea { padding-right: 52px }
+.mic { position: absolute; right: 8px; bottom: 10px; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); display: grid; place-items: center }
+.mic svg { width: 18px; height: 18px }
+.mic[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 25%, transparent); animation: listen 1.4s ease-in-out infinite }
+@keyframes listen { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--teal) 12%, transparent) } }
+textarea { width: 100%; min-height: 72px; resize: vertical; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px }
+
+/* Primary action */
+.dock { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 5 }
+.dock-inner { max-width: 460px; margin: 0 auto; display: flex; gap: 10px; align-items: center }
+.btn { border: 0; border-radius: var(--r-pill); padding: 13px 20px; font-size: 15px; font-weight: 500 }
+.btn.primary { background: var(--teal); color: #0A0A0A; flex: 1 }
+.btn.primary:disabled { opacity: .55; cursor: default }
+.btn.ghost { background: var(--surface); border: 1px solid var(--line); color: var(--ink) }
+.tabs { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px }
+.tabs button { border: 0; background: none; border-radius: var(--r-pill); padding: 9px 16px; font-size: 14px; color: var(--ink-2) }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 500 }
+.status { font-size: 13px; color: var(--ink-2); text-align: center; min-height: 1.2em }
+
+/* Read-back */
+.coach { border-radius: var(--r-lg); padding: 20px; background: linear-gradient(165deg, var(--teal-wash), var(--surface) 78%); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px }
+.coach h2 { margin: 0; font-size: 21px; font-weight: 500; line-height: 1.3; text-wrap: balance }
+.coach p { margin: 0; color: var(--ink) }
+.byline { font-family: var(--font-data); font-size: 11.5px; color: var(--ink-2); letter-spacing: .02em }
+.writing { color: var(--ink-2) }
+.rule { border-radius: var(--r-lg); padding: 16px 18px; background: var(--pain-wash); color: var(--pain-ink); display: flex; flex-direction: column; gap: 6px }
+.rule .label { color: var(--pain-ink); opacity: .85 }
+.rule p { margin: 0 }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px }
+.call { display: inline-flex; align-self: flex-start; align-items: center; gap: 7px; border-radius: var(--r-pill); padding: 4px 12px; font-size: 13px; font-weight: 500 }
+.call.train { background: var(--teal-wash); color: var(--teal-ink) }
+.call.modify { background: color-mix(in srgb, var(--pain) 16%, var(--surface)); color: var(--ink) }
+.call.rest { background: color-mix(in srgb, var(--ink) 8%, var(--surface)); color: var(--ink) }
+.card h3 { margin: 0; font-size: 17px; font-weight: 500 }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px }
+.pattern { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line) }
+.pattern:first-of-type { border-top: 0; padding-top: 0 }
+.pattern p { margin: 0 }
+.ev { display: flex; flex-wrap: wrap; gap: 6px }
+.ev button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; font-family: var(--font-data); font-size: 11.5px; padding: 2px 8px; color: var(--ink-2) }
+.ev button[aria-expanded="true"] { border-color: var(--teal); color: var(--teal-ink); background: var(--teal-wash) }
+.evtext { font-size: 13px; color: var(--ink-2); background: var(--bg); border-radius: 10px; padding: 8px 10px }
+.conf { display: flex; align-items: center; gap: 10px; font-size: 14px }
+.meter { display: inline-flex; gap: 4px }
+.meter i { width: 18px; height: 6px; border-radius: 3px; background: var(--line) }
+.meter i.on { background: var(--teal) }
+details.how { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 18px }
+details.how summary { cursor: pointer; font-weight: 500 }
+details.how ol { margin: 10px 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px }
+details.how li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; font-size: 14px }
+details.how li code { font-family: var(--font-data); font-size: 12px; color: var(--teal-deep); padding-top: 1px }
+details.how .fine { font-size: 13px; color: var(--ink-2); margin: 12px 0 0 }
+
+/* History */
+.rows { display: flex; flex-direction: column; gap: 8px }
+.row { display: grid; grid-template-columns: 74px 1fr auto; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; text-align: left; width: 100% }
+.row:hover { border-color: var(--teal) }
+.row .d { font-family: var(--font-data); font-size: 12.5px; color: var(--ink-2) }
+.row .sum { min-width: 0; font-size: 14px; display: flex; flex-direction: column; gap: 2px }
+.row .sum small { color: var(--ink-3); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.dots { display: inline-flex; gap: 3px; flex-wrap: wrap }
+.dots i { width: 8px; height: 8px; border-radius: 50% }
+.callmini { font-size: 12px; color: var(--ink-2); font-family: var(--font-data) }
+.tops { display: flex; flex-direction: column; gap: 8px }
+.top-row { display: grid; grid-template-columns: 1fr 120px 28px; gap: 10px; align-items: center; font-size: 14px }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--heat) }
+.num { font-family: var(--font-data); font-size: 12.5px; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums }
+.back { border: 0; background: none; color: var(--teal-deep); padding: 0; font-size: 14px; align-self: flex-start }
+.loading { padding: 40px 0; text-align: center; color: var(--ink-2) }
+.topright { display: flex; align-items: center; gap: 10px }
+.linkbtn { border: 0; background: none; color: var(--ink-2); font-size: 13px; padding: 6px 4px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line) }
+.linkbtn:hover { color: var(--ink) }
+.ownerform { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px }
+.ownerform label { font-size: 14px; font-weight: 500 }
+.ownerform input { flex: 1 1 160px; min-width: 0; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 9px 14px }
+.ownerform .btn { padding: 9px 16px; font-size: 14px }
+.ownerform .btn.primary { flex: none }
+.ownerform .status { flex-basis: 100%; text-align: left; margin: 0 }
+.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "ctrl" "map" "rest" }
+.layout.read { grid-template-areas: "head" "rest" "map" }
+.layout.hist { grid-template-areas: "head" "map" "rest" }
+.a-head { grid-area: head } .a-ctrl { grid-area: ctrl } .a-map { grid-area: map } .a-rest { grid-area: rest }
+.a-head, .a-ctrl, .a-map, .a-rest { display: flex; flex-direction: column; gap: 20px; min-width: 0 }
+.dock-box { display: flex; gap: 10px; align-items: center; flex: 1; min-width: 0 }
+.demo-wrap { align-self: flex-start; display: flex; align-items: flex-start; gap: 6px; max-width: 100% }
+.demo-x { flex: none; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink-2); display: grid; place-items: center; padding: 0 }
+.demo-x svg { width: 11px; height: 11px }
+.demo-x:hover { color: var(--ink); border-color: var(--ink-3) }
+details.demo { min-width: 0; font-size: 13px; color: var(--ink-2) }
+details.demo summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 12px 4px 10px; color: var(--ink-2) }
+details.demo summary::-webkit-details-marker { display: none }
+details.demo summary::after { content: "What’s this?"; color: var(--ink-3); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--line) }
+details.demo[open] summary::after { content: "Hide" }
+details.demo summary .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal) }
+details.demo p { margin: 8px 2px 0; max-width: 46ch; line-height: 1.5 }
+.toptabs { display: none }
+.actionbar { display: none }
+.foot { font-size: 12.5px; color: var(--ink-3); text-align: center; padding-top: 8px }
+.sect-head { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.mini-tabs { display: inline-flex; background: color-mix(in srgb, var(--ink) 5%, transparent); border-radius: var(--r-pill); padding: 3px }
+.mini-tabs button { border: 0; background: none; border-radius: var(--r-pill); padding: 4px 12px; font-size: 13px; font-weight: 500; color: var(--ink-2) }
+.mini-tabs button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1.5px var(--teal) }
+.cal { gap: 14px }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap }
+.cal-nav { display: flex; align-items: center; gap: 4px }
+.cal-nav button { border: 0; background: none; width: 30px; height: 30px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--ink) }
+.cal-nav button:hover:not(:disabled) { background: var(--bg) }
+.cal-nav button:disabled { color: var(--ink-3); opacity: .4; cursor: default }
+.cal-title { font-weight: 600; min-width: 8.5em; text-align: center }
+.calwrap { display: grid; gap: 14px; align-items: start }
+.calwrap.is-month { grid-template-columns: auto minmax(0, 1fr) }
+.cgrid { display: grid; grid-template-columns: repeat(7, 26px); gap: 4px 4px; justify-items: center }
+.cwk { font-size: 11px; color: var(--ink-3); font-weight: 500; padding-bottom: 2px }
+.cday { width: 26px; height: 26px; border: 0; padding: 0; background: none; border-radius: 50%; display: grid; place-items: center; cursor: pointer }
+.cday:disabled { cursor: default }
+.cday::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 16%, transparent); transition: transform .12s ease }
+.cday.future::before { background: color-mix(in srgb, var(--ink) 6%, transparent) }
+.cday.clear::before { width: 10px; height: 10px; background: transparent; box-shadow: inset 0 0 0 1.5px var(--teal) }
+.cday.lv-tight::before, .cday.lv-tender::before, .cday.lv-sore::before, .cday.lv-pain::before { width: 12px; height: 12px }
+.cday.lv-tight::before { background: var(--area-tight) } .cday.lv-tender::before { background: var(--area-tender) } .cday.lv-sore::before { background: var(--area-sore) } .cday.lv-pain::before { background: var(--pain) }
+.cday.today.empty::before { background: var(--ink); width: 10px; height: 10px }
+.cday.today { box-shadow: inset 0 0 0 1.5px var(--ink) }
+.cday.sel { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--teal) 70%, transparent) }
+.cday.pin { box-shadow: inset 0 0 0 2px var(--teal); background: color-mix(in srgb, var(--teal) 14%, transparent) }
+.cd-head { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.cd-pin { border: 0; border-radius: var(--r-pill); background: var(--ink); color: var(--surface); font-size: 11.5px; font-weight: 500; padding: 2px 9px }
+.cd-pin span { opacity: .7; margin-left: 2px }
+.cday:not(:disabled):hover::before { transform: scale(1.2) }
+.cal-detail { background: color-mix(in srgb, var(--ink) 4%, var(--surface)); border-radius: var(--r-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 100% }
+.cd-title { margin: 0; font-weight: 600; font-size: 15px }
+.cd-marks { display: flex; flex-direction: column; gap: 4px }
+.cd-mark { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; border: 1.5px solid var(--line); border-radius: 10px; padding: 3px 8px; background: var(--surface) }
+.cd-mark b { font-weight: 500; color: var(--ink-2) }
+.cd-mark[data-s="tight"] { border-color: var(--lv-tight) } .cd-mark[data-s="tender"] { border-color: var(--lv-tender) } .cd-mark[data-s="sore"] { border-color: var(--lv-sore) } .cd-mark[data-s="pain"] { border-color: var(--pain) }
+.cd-more, .cd-meta { margin: 0; font-size: 13px; color: var(--ink-2) }
+.cd-open { align-self: flex-start; padding: 2px 0; color: var(--teal-deep) }
+.cyear { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px }
+.cmonth { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.cm-name { font-size: 12px; font-weight: 600; color: var(--ink-2) }
+.cgrid.mini { grid-template-columns: repeat(7, minmax(0, 12px)); gap: 2px }
+.cgrid.mini .cday { width: 12px; height: 12px }
+.cgrid.mini .cday::before { width: 4px; height: 4px }
+.cgrid.mini .cday.clear::before { width: 7px; height: 7px; box-shadow: inset 0 0 0 1px var(--teal) }
+.cgrid.mini .cday.lv-tight::before, .cgrid.mini .cday.lv-tender::before, .cgrid.mini .cday.lv-sore::before, .cgrid.mini .cday.lv-pain::before { width: 8px; height: 8px }
+.cgrid.mini .cday.today.empty::before { width: 6px; height: 6px }
+.cgrid.mini .cday.today, .cgrid.mini .cday.sel { box-shadow: inset 0 0 0 1px var(--teal) }
+.cgrid.mini .cday.pin { box-shadow: inset 0 0 0 1.5px var(--teal); background: color-mix(in srgb, var(--teal) 18%, transparent) }
+.cgrid.mini .cday.today:not(.sel) { box-shadow: inset 0 0 0 1px var(--ink) }
+.cal-key { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink-2) }
+.cal-key span { display: inline-flex; align-items: center; gap: 6px }
+.cal-key .k { width: 9px; height: 9px; border-radius: 50%; display: inline-block }
+.cal-key .k.lv-tight { background: var(--area-tight) } .cal-key .k.lv-tender { background: var(--area-tender) } .cal-key .k.lv-sore { background: var(--area-sore) } .cal-key .k.lv-pain { background: var(--pain) } .cal-key .k.clear { box-shadow: inset 0 0 0 1.5px var(--teal) }
+@media (max-width: 479px) { .calwrap.is-month { grid-template-columns: 1fr } .calwrap.is-month .cgrid { justify-content: center; grid-template-columns: repeat(7, 36px) } .calwrap.is-month .cday { width: 34px; height: 34px } }
+@media (min-width: 900px) {
+  .app { max-width: 1140px }
+  .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); column-gap: 48px; grid-template-rows: auto auto 1fr; grid-template-areas: "map head" "map ctrl" "map rest" }
+  .layout.read, .layout.hist { grid-template-rows: auto 1fr; grid-template-areas: "map head" "map rest" }
+  .a-map { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 92px); align-self: start }
+  .figure { height: min(70vh, 600px) }
+  .slides { overflow: visible; scroll-snap-type: none }
+  .slide { flex: 1 1 50% }
+  .slide .figure { height: min(66vh, 560px) }
+  .slide-cap { display: block }
+  .maprow .toggle { visibility: hidden }
+  .pair { padding: 24px 16px 16px }
+  .pair .figure { height: min(62vh, 520px) }
+  .greet h1 { font-size: 32px }
+  .app { padding-block: 0 40px }
+  .top { display: grid; grid-template-columns: 1fr auto 1fr; padding-block: 14px }
+  .topright { justify-self: end }
+  .toptabs { display: flex }
+  .toptabs .tabs { padding: 3px }
+  .toptabs .tabs button { padding: 7px 18px }
+  .dock { display: none }
+  .actionbar { display: flex; gap: 10px; position: sticky; bottom: 0; margin-top: -4px; padding-block: 16px 20px; background: linear-gradient(to top, var(--bg) 72%, transparent) }
+  .actionbar:empty { display: none }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="9" cy="13" r="6.2" fill="none" stroke="var(--teal)" stroke-width="2.6"/><circle cx="17" cy="13" r="6.2" fill="none" stroke="var(--teal-deep)" stroke-width="2.6"/></svg>
+      <span>SomaLoop</span>
+    </div>
+    <nav class="toptabs" id="toptabs" aria-label="Sections"></nav>
+    <div class="topright">
+      <div class="mode" id="mode" hidden>
+        <button type="button" id="modeLive" aria-pressed="true">My journal</button>
+        <button type="button" id="modeDemo" aria-pressed="false">Demo</button>
+      </div>
+      <button type="button" class="linkbtn" id="ownerBtn">Owner sign-in</button>
+    </div>
+  </header>
+  <form class="ownerform" id="ownerForm" hidden>
+    <label for="ownerKey">Passcode</label>
+    <input id="ownerKey" type="password" autocomplete="current-password" required>
+    <button type="submit" class="btn primary">Unlock my journal</button>
+    <button type="button" class="btn ghost" id="ownerCancel">Cancel</button>
+    <p class="status" id="ownerStatus"></p>
+  </form>
+  <main id="view"><div class="loading">Opening your journal…</div></main>
+</div>
+<div class="dock"><div class="dock-inner" id="dock"></div></div>
+
+<script>
+const BODY = {"front":{"vb":"0 0 182.118 579.544","paths":[{"d":"M82.1 0.1C82.8 0 83.6 0 84.3 0C90.9 -0.1 97.7 3.3 102.4 7.8C106.3 11.6 108.9 16.5 108.4 22.1C108.2 24.6 107.6 27 107.6 29.6C108.8 30.3 110.5 31.3 111.2 32.4C112.4 34.5 111.9 38.4 111.4 40.6C110.4 45.2 109.1 47.8 105.2 50.4C104.5 52.3 104.4 54.4 103.8 56.4C103 58.6 101.5 60.6 100.8 62.8C100.1 65.2 100.7 73.2 101.5 75.5C102.4 77.8 105.6 79.7 107.5 81C111.8 83.9 117.3 87.7 122.4 88.8C128.7 90.2 134.6 88.4 141.4 92C143.2 92.9 144.8 94.2 146 95.9C150.2 101.7 154.8 115.9 155.1 123C155.5 129 154.2 135 154.6 141C155.1 148.8 156.9 156.3 157.4 164C158 173.6 157 183.5 158.4 192.9C159.7 201.3 164.7 209.2 167.3 217.3C172.7 233.6 170.3 249.5 172.9 265.9C174.8 277.7 178.5 289.3 180.7 301.1C181.4 304.5 182.3 308.2 182.1 311.7C182 313.1 181.7 314.5 181.1 315.7C180.4 317.2 179.1 318.5 178.2 320C177 322 176 324.2 175 326.3C174.3 327.6 173.2 329.4 171.6 329.8C170.2 330.2 168.6 329.7 167.4 329C164.7 327.6 156.4 320.9 155.5 318.1C154.9 315.9 155.1 313.4 155.2 311.2C155.4 307.8 155.6 304.5 156.7 301.3C158.5 295.8 162.4 292.4 161.6 286C161 280.7 158.2 275.5 156.2 270.6L148.9 252.4C146.6 246.7 144.1 240.8 142.7 234.8C140.3 224.8 140.3 214.3 139.3 204.1C138.3 192.9 136 182.1 134.1 171.1C133.1 165.5 132.7 159.8 131.2 154.3C130.1 158.9 130.1 163.7 129.2 168.3C128.3 173 127.3 177.8 126.1 182.4C124.8 188.1 122.1 194.9 122.6 200.8C123.2 208.7 131.2 217.8 134.4 225.4C136.5 230.6 137.2 236.1 138.6 241.5C139.8 245.8 141.5 249.9 142.8 254.2C145.6 263.9 147.2 274 147.4 284.2C147.5 295 145.2 305.7 142.8 316.2C141.3 323.2 139.7 330.1 138.1 337.1C135.4 347.8 132.6 358.4 131.1 369.4C130.2 376.7 130.4 383.8 130.1 391.1C129.9 397.4 128.9 403.3 129.8 409.7C130.7 415.9 132.7 422 134.2 428C136.6 437.6 137.6 447.6 137.2 457.5C136.8 467 133.9 476.2 131.7 485.4C129.7 494 128.1 502.7 126.5 511.4C125.4 517.4 124 523.6 123.7 529.7C123.6 532.8 124.5 536 124.5 539.2C124.4 542 123.7 544.9 123.9 547.7C124.5 553.7 129 564.2 132.5 568.9C134 570.9 136.6 572.5 137.5 574.8C137.8 575.6 137.9 576.7 137.4 577.4C137.1 578 136.5 578.2 135.9 578.4C134.6 578.7 133.3 578.6 132 578.6C127.5 578.5 122.9 579 118.4 579C114.4 579.1 110.2 579.8 106.3 579.5C104.9 579.4 103.6 579.1 102.4 578.3C101.2 577.5 100.4 576.3 100.1 574.8C99.6 571.1 101.5 566.2 102 562.5C102.5 558.6 102.8 554.7 103.1 550.8C103.3 548.2 103.5 545.5 103.5 542.8C103.4 539.3 102.9 535.8 103.1 532.3C103.4 529 104.6 525.8 105.2 522.6C106.2 516.8 106.1 510.6 105.8 504.7C105.3 497.8 104 491 103 484.2C101.5 473.5 100.2 462.7 98.8 451.9C98.1 446.3 97 440.7 96.6 435C96.2 428.5 97.1 422.1 97.2 415.6C97.4 409.4 96.7 403.4 96.3 397.2C96.1 394.1 96.3 390.9 96.1 387.7C95.9 384.1 95 380.6 94.1 377.1L92.7 362L92.2 350.7C92.7 379.8 90.3 384 90.4 390.3C90.5 397.7 89.9 405.2 90.4 412.5C91 421.3 92.6 429.6 92.2 438.5C92 444.8 91.3 451 90.8 457.3C90.2 465.7 89.6 474.1 89 482.5C88 493.6 86.4 505.3 87.6 516.4C88.2 521.9 90.4 526.9 91.2 532.3C91.8 536.3 90.7 540.4 91.2 544.5C92 550.9 93.1 557.6 94.4 563.9C95 566.6 95.9 569.4 96.3 572.2C96.4 573.2 96.5 574.2 96.2 575.2C95.8 576.4 95.1 577.6 93.9 578.1C93.2 578.4 92.3 578.5 91.5 578.6C87.4 578.7 83.2 579.3 79.1 579.3C73.7 579.3 68.3 579.7 62.9 579.4C61.8 579.4 60 579.3 59 578.8C58.7 578.5 58.5 578.4 58.5 577.9C58.3 575.1 62.5 570.9 64.1 568.7C67.1 564.7 71.3 552.2 71.1 547.2C71 544.9 70 542.7 69.8 540.4C69.6 536.4 70.5 532.5 70 528.5C69.3 523.5 67.9 518.6 66.7 513.8C64.5 504.7 62.2 495.6 59.5 486.6C56.5 476.4 53.1 466.4 52.4 455.7C51.9 446.2 52.8 436.7 54.5 427.4C55.7 421.2 57.3 415.1 57.8 408.9C58.3 402.7 56.8 396.6 56.2 390.5C55.5 384.3 55.2 378 54.2 371.8C52.3 360.4 48.7 349.6 45.3 338.6C43.1 331.6 41.1 324.6 39.2 317.5C36.4 307.5 34 297.5 33.5 287.1C32.8 269.3 36.1 259.1 39.9 242.5C41.1 236.9 42 231 43.9 225.6C46.6 218.3 53.4 209.8 53.6 202.1C53.8 194.7 48.5 182.8 46.5 175.3C44.9 169.1 43.8 162.8 42.9 156.5C40.7 161.8 40.9 168.9 40.3 174.7C39.4 183.3 37.7 191.7 37.2 200.3C36.6 212.5 37.5 225.1 35.2 237.2C32.9 249.5 28.2 261.7 24.1 273.5C22.3 278.5 19.4 283.6 19.1 289C18.7 294.9 22.5 298.8 24.8 303.8C26.5 307.7 27.4 312.6 27.4 316.8C27.4 322.8 23.8 325.4 19.7 329C18.2 330.3 16.8 331.9 15.3 333.3C14.5 333.5 13.6 333.7 12.8 333.7C11.2 333.7 9.8 332.7 8.8 331.6C7.2 329.7 6.2 327 4.9 324.9C3.8 323.1 2.2 321.6 1.1 319.8C0.6 318.9 0.2 317.9 0.1 316.8C-0.3 314 0.5 310.4 0.8 307.6C2.2 295.5 4.9 283.7 6.2 271.6C8 255.3 5.8 239 9 222.8C10.9 213.5 16.7 204.3 17.4 195.3C18 186.8 16.6 178.1 16.7 169.5C16.8 160.1 18.5 150.8 18.3 141.4C18.2 135.3 16.5 129.6 17 123.5C17.6 116.6 21.5 101.5 26.3 96.4C28.4 94.2 31.1 93.1 34 92.4C38.5 91.2 43.7 91.7 48 90.2C55.4 87.7 62.2 81.7 68.1 76.8C68.4 73.3 69.1 69.1 68.4 65.6C67.8 62.7 65.7 60.5 64.4 57.8C63.4 55.6 63.2 53.4 62.9 51C62.7 50.8 62.4 50.6 62.2 50.5C58.3 47.8 56.2 43.6 55.4 39C54.1 30.9 59.1 31.4 59.6 29.6C59.9 28.5 59.6 26.6 59.5 25.4C59.1 19.7 59.7 14.8 63.1 10.1C67.7 3.7 74.7 1.3 82.1 0.1Z","k":"o"},{"d":"M98.3 65.2C98.4 68.2 99.2 85.9 100.6 87.2C102.1 86.5 101.6 81 101.6 79.4C105.5 81.1 107.9 83.9 111.3 86.3C113 87.5 114.8 88.1 116.2 89.1C116.1 89.9 116.3 89.5 115.6 90.2C117.5 91.3 120.6 91.2 122.8 91.3C133.6 91.8 144.1 91.4 147.6 103.8C147.7 104.4 147.9 105.1 148 105.7L149.9 110.5C152.2 116.5 153.2 123 152.6 129.4C152.5 131.6 151.9 136.3 152.1 138.3C153 147.9 154.6 157.3 155.4 167C156.1 175.3 154.9 183.9 155.9 192.1C157.3 202.4 164.3 211.6 166.6 221.9C169.7 236 168.5 250.2 170.4 264.4C172 275.9 175.3 286.8 177.5 298.2C178.1 303 180.9 309.8 178.9 314.5C178.1 316.4 176.1 318.8 174.9 320.9C173.6 323.1 172.2 329.7 168.4 327.3C167.1 326.4 165.6 324 164.3 323C162.2 321.4 157.6 319.8 157.6 316.5C157.7 312.1 157.3 305.8 159 301.8C161 297 164.5 293.1 164.3 287.7C164 279.5 155.5 266.3 154.4 258.7C150.8 250.3 146.2 239.2 144.4 230.3C143.8 227 143.4 219 143.1 215.3C141.9 206 141 196.8 139.7 187.4C138.9 184.6 137.9 177.6 137.3 174.5C136.1 170.6 133.3 157.6 133.4 154C133.8 144 134.8 143.7 131.2 133.8C132.5 130.2 136.2 125.2 138.3 121.6C134.3 124.5 131.7 127.2 129.6 131.6C127.4 128.2 126.7 127.4 123.8 124.7L123.2 124.8C124.2 127.1 126.1 129.1 127.3 131.4C130.7 137.6 132.5 145.8 129.9 152.7C126.7 160.9 114.3 168.8 105.4 165.7C104.6 165.4 103.5 164.9 102.8 164.5L102.5 164.7C102.8 165.7 103.1 165.6 104 166.2C111.5 170.5 121.8 165.9 127.7 160.5C127.2 167.2 126.1 175.3 123.7 181.5L122.9 184.4C122.5 190 119.3 195.7 120.1 201.3C121.3 209.4 127.5 216.2 130.7 223.5C133.9 230 135.2 237 137.1 243.9C138.3 248.4 140.1 252.9 141.4 257.4C147 277.4 145.1 298.5 140.1 318.4C138.2 326 136.7 333.7 134.6 341.4C131.5 352.9 128.5 364.7 127.8 376.7C127.6 381.5 127.8 386.4 127.6 391.2C127.4 397.1 126.4 402.2 127.2 408.1C128.2 414.6 130 420.7 131.6 427C134.1 437.9 135.9 449.4 134.8 460.5C133.8 469.3 131.6 477.4 129.5 486C127.7 493.7 125.9 501.6 124.3 509.4C122.8 516.7 121.2 525 121.3 532.5C121.3 534.9 122.4 538.9 122.7 541.7C122.3 540.7 121.5 538.6 120.7 538.1L120.2 538.2C119.3 540.4 122.7 552.7 123.4 555.9C124.6 561.1 128 567.2 130.5 572C128.1 571.1 126.2 570.2 124 569.3C123.1 569.5 118.6 570.5 118.2 570.4C116.6 570.4 114.8 569.8 112.6 570C112.8 570.5 116.7 572.3 117.6 572.8C122.7 571.3 122.6 572 127.6 573.7C129.4 574.3 133.2 574.3 134.5 576L134.4 576.5C131.9 577.5 116.2 576.9 112.9 576.5C112 574.6 111.1 572.8 109.4 571.4C108.2 571.2 108.3 571.2 107.1 571.6L106.7 572.1C107.4 573.5 109.7 574 110.4 576.2C110 576.7 110 576.9 109.3 577C102.4 577.6 101.5 576 103.2 569.6C105.1 562.3 104.8 554 105.8 546.5C106.4 541.7 105.1 537.3 105.4 532.6C106.6 524.7 108.9 519 108.4 510.5C108 502.7 106.8 494.9 105.7 487.1L101.5 454.6C100.7 448.9 99.8 443.2 99.1 437.4C97.8 428.1 100.4 418.7 99.7 409.6C99 401.4 98.3 393.3 98.3 385C98.3 380.9 94.9 374.6 95.3 370C94.8 361.4 94.1 352.9 93.8 344.2C93.6 336.9 93.8 329.5 93.5 322.1C93 312.9 91.3 303.2 92.4 293.9C92.6 292.2 93.8 290.9 95 289.8C95.5 289.5 95.9 289.1 96.4 288.7C94.3 289.4 93.5 289.6 91.4 290C89.7 290.2 86 289.6 85.1 290C85.3 290.6 85.3 290.6 85.8 291L86.1 291.3C87.2 291.6 87.1 291.6 87.9 292.4C89.5 296.2 89.6 324.5 89.7 329.7C90.1 343.3 90.5 357 90.1 370.6C90.3 375.6 87.5 382.4 88 387.2C88.7 395.4 87.8 403.9 88.3 411.9C88.8 421.8 90.7 431.4 89.8 441.4C89.3 447.7 88.9 454.1 88.3 460.5C87.8 468.3 87.3 476.2 86.6 484C85.6 496.4 83 509 86 521.3C86.9 524.9 88.4 528.6 89.1 532.3C89.8 536 88.4 540.2 88.9 543.8C90.1 553.3 91.5 562.6 93.8 571.9C94.1 573.3 94.2 576.3 92.1 576.4C90.4 576.4 87.3 576.9 85.9 576C86.1 574.3 88.1 572.8 89.4 571.5C86.5 569 83.8 574.2 82.9 576.1L82.6 576.1C79.8 576.2 62.8 576.7 61.5 575.4C62.8 573.8 68.5 573.5 70.7 572.3C73.7 570.7 75.4 571.4 78.3 572.7C80.4 571.5 82.5 570.4 84.6 569.4C84 569.4 80.9 570.1 80.5 570.1C73.5 569.9 72 569.3 65.3 571.4C70.3 562.5 72.9 555.7 73.8 545.3C74 543.4 75.5 539.7 73.8 538.5C73.3 539 72.8 540.5 72.4 541.2L72.1 541.2C71.8 537.6 73.3 533.9 72.5 529.8C70 516.7 66.8 503.1 63.2 490.3C59.9 478.8 55.5 467.9 54.7 455.8C54.3 448.3 54.6 438.3 56.3 431.1C59.5 416.8 61.5 405.9 58.7 391.3C57.8 386.6 58.3 380 57.3 374.7C55.8 367 54.2 359.4 51.7 351.8C45.7 330.7 37.3 308.6 35.8 286.6C34.7 271.8 38.2 258.5 41.8 244.4C43.6 237.6 43.9 231.7 46.7 224.7C49.7 217.6 55.5 210.5 56 202.9C56.3 197.6 53.5 191.6 52.1 186.4C50 178.7 47.1 169.7 46.2 161.9C46.5 162.2 46.8 162.4 47.2 162.7C52.7 167.2 58.6 169.3 65.7 168.4C67.6 168.2 70.2 167.1 71.4 165.6L71.3 165C70.5 165 68.6 166.8 67.5 167C62 168 56.8 166.3 52.2 163.5C40.5 156.2 39.5 141.5 46.7 130.5C47.3 129.5 48.6 127.6 48.5 126.5L48 126.6C45.6 128.3 44.7 130.2 43.2 132.7C41.1 130.2 37.6 126 34.6 124.7L34.3 124.5C34.3 127.4 39.7 130.9 41.3 135.5C40.1 139.7 38.9 144.7 39.5 149.1C39.7 151.1 40.4 153.1 40.3 155.2C39.2 169.6 36.2 183.9 35.1 198.3C34.6 203.7 34.3 209.2 34.2 214.7C34.1 223 34.4 231.2 32.6 239.3C30.1 250 25.7 260.7 22.1 271.1C20 277.3 16.8 284.3 16.8 290.9C16.9 294.3 18.1 297.3 19.7 300.2C22.9 305.8 26.2 313.5 24.5 320.2C24.1 321.9 15.1 330.4 13.6 331.1C12.9 331.4 12.6 331.3 11.9 331C11.2 330.6 10.7 330 10.2 329.4C9.1 327.8 8.6 325.9 7.6 324.3C6.1 322 3.3 319.9 2.6 317.2C1.3 312.3 7.5 279.3 8.6 272.3C9.1 269.1 9.2 265.6 9.8 262.4C9.9 258.7 9.8 254.9 9.8 251.2C9.5 246 9.4 242.2 9.8 237C9.7 221.6 15.9 211.6 19.7 197.4C20.1 196 19.9 190.8 19.9 188.9C19.5 183.2 19.6 176.9 19.7 171.1C19 160.9 20.7 150.6 20.7 140.6C20.8 131.8 17.3 126.7 20.6 117C21.2 113.7 22.4 110.4 23.4 107.2C24.1 101.4 28 96.8 33.6 95.1C35.9 94.2 38.4 93.9 40.8 93.5L42.1 93.3C45.8 93 53.2 92.3 54.8 91.6C54.6 91.1 54.4 90.9 54.2 90.5C55.3 89.2 67.1 80.7 68.6 79.9C68.7 82.9 68.6 84.3 69.7 87.1L70.2 87.4C71.6 85.8 70.7 69.5 70.6 66C80.8 76.6 88.4 73.5 98.3 65.2Z","k":"b"},{"d":"M86.1 291.3C87.1 295.2 87.5 305.3 87.7 309.4C88.4 328.1 87.9 346.9 86.5 365.6C85.9 370.4 86.3 375.9 84.8 380.4C83.9 382.6 82 383 80.2 381.6C75.4 377.7 74.3 370.3 74.2 364.6C73.8 343.2 77.6 322 81.5 301C82.1 297.8 82.8 294.2 84.6 291.5C84.9 291 85.2 291.1 85.8 291L86.1 291.3Z","k":"m","r":"inner_thigh_R","g":"inner_thigh_R"},{"d":"M70.2 107C75.8 104.5 78.2 103.5 84 102C86.1 108.8 86.6 124 85 131C76.5 130.5 68.8 127.3 61.5 126.6C57.8 126.2 49.3 124.6 46 126C44.8 126.7 43 127.4 41.9 126.5C42.2 124.1 48.7 119.9 50.8 118.4C56.2 114.8 64.4 109.4 70.2 107Z","k":"m","r":"chest_mid_R","g":"chest_R"},{"d":"M91.3 102.4C98.1 101.8 124.5 118.8 129.5 123.6C130.2 124.3 130.7 124.6 130.7 125.6C129.1 126.5 126.7 124.6 123.8 124.7L123.2 124.8C122.1 124.5 119.3 124.6 118.3 125C114.6 125.3 111.5 125.9 108 126.6L106.5 126.9C103.3 127.1 92.1 130.8 90.2 129.4C89.4 128.8 89.1 127.6 89 126.6C88.3 122.9 88.3 105.4 90.4 102.8C90.7 102.4 90.9 102.4 91.3 102.4ZM120.4 125.6C120.4 125.6 120.4 125.6 120.4 125.6L120.4 125.6ZM118.8 125.5C119.4 125.4 119.5 125.3 119.7 125.3C119.5 125.3 119.4 125.4 118.8 125.5L118.8 125.5Z","k":"m","r":"chest_mid_L","g":"chest_L"},{"d":"M50.7 127.2C53.9 126.7 58 126.7 61.2 127.4C66.2 128.2 80.7 131.1 83.6 135C83.8 135.3 84 135.5 84.1 135.8C83.2 138.7 82 140.3 79 141.7C70.9 145.5 55.2 152.5 49.7 141.3C48.7 139.3 46.9 134.6 47.1 132.5C48 130.1 49 129 50.7 127.2Z","k":"m","r":"chest_lower_R","g":"chest_R"},{"d":"M115.3 126.3C117.4 126.3 119.3 126.3 121.4 126.1C124 127.8 124.7 128.9 125.9 131.8C124.5 141.7 120.2 148.5 109.3 146.4C105 145.6 92.8 141.8 90.4 138.5C89.7 137.6 89.4 136.4 89.6 135.2C89.7 134.2 90.2 133.3 91 132.8C94.3 130.8 102.8 128.4 106.5 127.7C108.9 127 112.9 126.5 115.3 126.3Z","k":"m","r":"chest_lower_L","g":"chest_L"},{"d":"M137.3 174.5C137.4 167.7 136.6 161.4 136.2 154.7C135.9 148 135.9 141.2 136.9 134.5C137.2 132.6 137.3 129.4 137.8 127.7L138.1 127.4C139.8 128.9 144.4 147.9 144.7 150.8C145.4 158.6 150.8 192.8 146.8 198.4C144 198.6 140.9 189.8 139.7 187.4C138.9 184.6 137.9 177.6 137.3 174.5Z","k":"m","r":"biceps_inner_L","g":"biceps_L"},{"d":"M143.1 215.3C143.2 212.6 143.3 205.4 144.6 203.5C146.8 203.5 147.2 207.6 147.5 209.4C149.2 220.5 151.3 231.4 153.8 242.3C155.6 250.5 158.8 258.9 159.8 267.1C157.8 264.3 156.3 261.4 154.4 258.7C150.8 250.3 146.2 239.2 144.4 230.3C143.8 227 143.4 219 143.1 215.3Z","k":"m","r":"forearm_inner_L","g":"forearm_L"},{"d":"M109.6 187C111.9 185.2 112.9 184.2 114.7 182.6C117.1 180.5 122.4 173.2 124.2 172.3L124.6 172.6C124.6 174.6 123.9 179.1 123.7 181.5L122.9 184.4C117.6 194.7 117.6 203.9 108.3 214C108.3 209.5 109.1 205 109.3 200.5C109.6 196 109.6 191.4 109.6 187Z","k":"m","r":"obliques_upper_L","g":"obliques_L"},{"d":"M133 93C138.4 94.6 141.4 96.2 144.6 101.1C145.6 102.6 146.7 104.4 148 105.7L149.9 110.5C149.8 113.6 150.6 116.8 150.7 119.8C150.9 122.8 151.3 137.8 148.2 138.8C146.3 137.9 144.3 132.2 144.5 130.3C145.4 116.6 142.2 103.4 133 93Z","k":"m","r":"side_delt_L","g":"side_delt_L"},{"d":"M135.1 264.3C135.2 264.3 135.3 264.3 135.4 264.3C136.7 264.3 137.4 264.4 138.3 265.4C141.5 268.6 141.1 278 141.3 282.3C142.1 310.1 134.2 336.7 126.5 363C124.5 369.6 123.4 378.4 118.7 383.4C118.2 384 117.7 384 117 384.2C116.2 384 115.8 383.9 115.4 383.2C111.3 377.3 114.9 348 115.8 340.6C118 323.2 121.3 305.8 124.9 288.7C126 283.1 126.8 276.5 129.1 271.3C130.4 268.3 132.6 266.3 135.1 264.3Z","k":"m","r":"quad_outer_L","g":"quads_L"},{"d":"M43.2 265.2C44.8 265.4 46.1 265.8 47.4 266.8C49.1 268.1 50.4 270 51.3 272C54.1 278.5 55.5 286 57.2 292.9C62.3 313 67.1 333.4 69.8 354C70.6 360 73.5 379.3 69.6 383.8C69.3 384.3 69 384.1 68.5 384.2C66.9 383.4 65.7 382.3 64.8 380.8C61.5 375.5 59.5 367.4 57.4 361.5C48.4 335.6 39.7 308.9 39.6 281.3C39.6 277.4 39.3 273 40.3 269.2C40.9 267.1 41.3 266.3 43.2 265.2Z","k":"m","r":"quad_outer_R","g":"quads_R"},{"d":"M122 412.7C122.5 412.7 123.3 412.5 123.8 412.7C124.5 412.9 125.1 413.4 125.5 414C127.2 416.4 128.7 423.2 129.6 426.3C139.4 461.2 125.3 487 118.7 520.3C118.4 521.5 117.5 523.2 116.5 523.9C115.8 524.3 115.4 524.3 114.6 524.2C113.4 523.3 112.9 522.4 112.6 520.9C112 517.7 113.1 513.4 113.4 510.2C113.8 505.1 114.2 500 114.4 494.9C115 474 110.3 429.2 122 412.7Z","k":"m","r":"shin_outer_L","g":"shin_L"},{"d":"M64.4 412.4C65.5 412.4 66.2 412.4 67 413.2C69.7 416 70.8 420.6 71.7 424.3C77.5 446.9 75.1 469.8 76.4 492.8C76.8 498.2 77.3 503.7 77.9 509.1C78.4 513.1 79.3 517.3 79.1 521.3C78.8 521.8 78.4 522.4 78 522.9C77.5 523.6 77 523.6 76.2 523.7C75.2 523.2 74.5 522.5 73.7 521.8C72 518.6 70.3 509.5 69.1 505.4C64.3 488.1 57.6 471.3 56.6 453.1C56.1 442.6 57.7 432.6 60.3 422.4C61.2 419 62 415.1 64.4 412.4Z","k":"m","r":"shin_outer_R","g":"shin_R"},{"d":"M58.7 248.7C61.9 249.2 64.5 252.4 66.3 254.8C68.9 258.3 70.6 262.3 72.4 266.3C75 271.9 77.1 277.6 78.1 283.7C80.7 300.5 74.8 322.8 72.4 339.9C72.3 341.1 72.2 342.8 71.4 343.7L70.9 343.3C68.8 338.7 68.6 328.6 67.5 323.1C63.2 302.3 54.5 281.9 56.1 260.3C56.3 257.9 56.5 251.5 57.8 249.5C57.9 249.3 58.5 248.9 58.7 248.7Z","k":"m","r":"quad_front_R","g":"quads_R"},{"d":"M119.7 248.8L120.7 248.9C121.5 249.4 121.7 249.9 122 250.7C123.3 254.5 123.7 258.7 124 262.6C125.4 283.7 118.5 303.3 115.3 323.8C114.6 328.2 114.5 340.7 112.9 343.8L112.4 343.9C111.7 343.3 111.5 342.1 111.3 341.2C110.3 336 109.6 330.8 108.5 325.6C104.9 308.7 99.9 291.3 105.2 274.2C105.9 271.9 106.9 269.7 107.7 267.5C110.1 260.5 112.7 252.5 119.7 248.8Z","k":"m","r":"quad_front_L","g":"quads_L"},{"d":"M96.3 291.9C97.6 293 98.3 294.5 98.8 296C100.5 300.3 101.3 305.1 102.4 309.7C104.1 317.5 105.9 325.5 107.3 333.4C109.2 344.2 112 363.7 109.8 374C109.2 376.9 108.2 379.1 106.5 381.4C105.9 382.1 105.2 383 104.5 383.3C103.8 383.6 103.2 383.6 102.5 383.3C101.2 382.6 100.8 381 100.5 379.7C97.7 369.4 91.8 299.5 96.3 291.9Z","k":"m","r":"inner_thigh_L","g":"inner_thigh_L"},{"d":"M151.3 198.3C151.7 198.3 151.7 198.3 152.1 198.5C154.4 199.3 155.9 202 156.8 204.1C158.6 208.5 159.6 213.4 160.2 218C161.9 229.7 162.3 241.6 163.3 253.4C164 262.2 165.3 270.9 166 279.7C166 280.6 166.2 281.6 165.8 282.5L165.4 282.5L164.6 281.4C162.6 276.3 162.1 270.2 160.8 264.7C158 253.3 146.4 211.7 148.4 202.2C148.8 200.3 149.7 199.3 151.3 198.3Z","k":"m","r":"forearm_mid_L","g":"forearm_L"},{"d":"M80.3 414.7C81 414.6 82 414.4 82.7 414.6C83.8 414.8 84.7 415.9 85.2 416.9C86.9 419.6 87 423.5 87.3 426.6C88.2 435.4 88.5 444.3 87.3 453.1C86.5 459.6 85.1 466 84.2 472.4C83.5 477.6 83.7 483.1 82.4 488.1C82 488.6 81.9 488.6 81.3 488.9L80.8 488.4C79.5 483.6 80.2 477.5 80.1 472.6C79.9 465.5 79.6 458.5 79.1 451.5C78.8 446.8 78.3 442 77.6 437.3C76.9 432 75.1 425.2 76.2 420C76.7 417.6 78.3 415.9 80.3 414.7Z","k":"m","r":"shin_inner_R","g":"shin_R"},{"d":"M105.8 415.2C106.9 415.1 107.8 415 108.8 415.5C110.8 416.6 112.1 418.8 112.7 421C113.7 425.2 111 443.9 110.6 449.9C110.2 457.3 110.2 464.6 110.2 472C110.2 475.8 111.1 486.9 109.5 489.6L109 489.6C107.4 484.7 107.5 479.5 106.6 474.5C103.4 456.6 100.2 445.8 102 427.2C102.3 424.8 102.3 422.2 102.8 419.8C103.2 417.9 104.1 416.3 105.8 415.2Z","k":"m","r":"shin_inner_L","g":"shin_L"},{"d":"M105.1 94.6C108.8 94.3 111.2 94.5 114.5 96.3C124.1 101.8 131.3 109.7 134.1 120.6C134.3 121.7 134.6 122.9 133.9 123.9C133.6 124.3 133.7 124.2 133.1 124.2C130.4 123.1 128 121.2 125.8 119.2C124.4 117.9 122.5 116.9 121 115.8C115.4 112 109.3 108.6 103.2 105.8C99.1 103.8 94.7 102.2 90.9 99.7C95.5 97.2 99.9 95.8 105.1 94.6Z","k":"m","r":"chest_upper_L","g":"chest_L"},{"d":"M68.5 94.6C64.8 94.3 62.3 94.5 59 96.3C49.4 101.8 42.3 109.7 39.5 120.6C39.2 121.7 39 122.9 39.7 123.9C40 124.3 39.9 124.2 40.5 124.2C43.2 123.1 45.6 121.2 47.8 119.2C49.1 117.9 51 116.9 52.6 115.8C58.1 112 64.3 108.6 70.3 105.8C74.5 103.8 78.8 102.2 82.7 99.7C78 97.2 73.7 95.8 68.5 94.6Z","k":"m","r":"chest_upper_R","g":"chest_R"},{"d":"M93 221.2C94 221.2 95 221.2 96 221.4C99.1 221.9 102.2 223.9 104 226.4C104.2 238.2 101.1 249.3 96.6 260.2C96 261.6 95.4 263.5 94 264.4C93.6 264.6 93.3 264.6 92.8 264.4C91.9 264.2 91 263.1 90.6 262.3C89.6 260.5 89.9 225.1 90.7 223C91.1 221.9 92 221.6 93 221.2Z","k":"m","r":"abs_4_L","g":"abs"},{"d":"M81.3 221.2C81.8 221.2 82.4 221.2 82.9 221.3C84.1 221.5 84.6 222.7 85.2 223.6C85.4 231.9 85.5 240.1 85.5 248.4C85.5 251.9 85.9 255.9 85.4 259.4C85.2 260.8 84.8 262.9 83.9 264C83.3 264.6 83.1 264.6 82.4 264.7C80.8 264.1 80.1 262.5 79.4 261.1C74.8 250.9 70.7 236.7 71.8 225.6C74.6 223.2 77.7 221.8 81.3 221.2Z","k":"m","r":"abs_4_R","g":"abs"},{"d":"M57 207.4C58.1 207.8 59.1 208.9 59.8 209.8C67.7 219.4 68.6 228.9 70.2 240.6C70.6 243.4 71.5 247.2 71 250C70.9 250.8 70.7 251 70 251.5C70 251.4 69.9 251.4 69.9 251.4C69.8 251.3 69.7 251.3 69.6 251.2C67.9 250 66.6 248.1 65.4 246.4C61 240.4 57.7 234.5 56.3 227.1C55.4 222.5 54.3 211.4 57 207.4Z","k":"m","r":"obliques_lower_R","g":"obliques_R"},{"d":"M118.1 207.5C118.3 207.7 118.4 207.8 118.7 208C120.6 210 119.8 217 119.7 219.7C119.5 229.5 116.4 237.5 110.8 245.4C109.3 247.4 107.9 249.5 106.1 251.2L105.3 251.3L104.8 250.8C104.6 249.5 104.5 248.3 104.6 247.1C104.8 244.5 105.3 241.9 105.6 239.3C107 227.9 108.8 215.4 118.1 207.5Z","k":"m","r":"obliques_lower_L","g":"obliques_L"},{"d":"M123.3 92.2C126.1 92.1 129.2 92.4 131.7 93.8C136.1 96.1 138.6 103.3 140 107.7C141.2 111.4 145.4 127.4 143.3 130.4C142.9 131 142.7 131 142 131.1C141.1 130 140.7 128.6 140.3 127.3C136.5 117.5 131.1 107.6 123.1 100.6C120.9 98.7 118.3 97.2 116 95.4C115.9 94.8 115.8 95 116.1 94.6C117.4 92.9 121.3 92.5 123.3 92.2Z","k":"m","r":"front_delt_L","g":"front_delt_L"},{"d":"M92.4 196.3C95.5 196.1 99.6 196 102.5 197.2C103.9 197.7 104.7 198.8 105.2 200.1C107.2 205.5 104.9 215.8 102.5 221C99.7 219.4 95.9 219.4 93.8 216.9C90.6 213.1 89.3 207.4 89.7 202.5C89.9 199.9 90.4 198 92.4 196.3Z","k":"m","r":"abs_3_L","g":"abs"},{"d":"M78.8 196.3C80.1 196.3 81.8 196 83 196.6C84.2 197.1 85.2 198.3 85.6 199.6C87.7 206 84.2 212.3 81.6 217.8C80 218.4 78.4 218.9 76.8 219.5C75.8 219.8 74.9 220.2 74 220.4C73.1 220.2 72.6 219.7 72.1 218.9C69.4 214.4 69.3 203.9 70.7 198.8C73.4 197.1 75.7 196.6 78.8 196.3Z","k":"m","r":"abs_3_R","g":"abs"},{"d":"M143.8 136.1C145.3 137 146.5 139.2 147.3 140.8C149.5 144.8 150.9 149.3 151.9 153.7C153.7 162.3 155.9 186.9 153.6 194.9C153.2 195.2 152.8 195.5 152.5 195.7C151.8 195.7 151.5 195.7 151.1 195.2C149.3 193.3 149.4 190.2 149.3 187.8C149 179.4 148.9 170.8 147.7 162.4C146.9 157 146.1 151.7 145.2 146.4C144.6 143.1 143.7 139.5 143.8 136.1Z","k":"m","r":"biceps_outer_L","g":"biceps_L"},{"d":"M50.8 171.7C52.9 173.1 57.2 179 59.3 181.3C61.3 183.5 63.6 185.3 65.9 187.2C65.9 191.7 65.8 196.2 66.2 200.7C66.6 205.1 67.5 209.7 67.3 214C66.4 213.2 65.6 212.3 64.8 211.3C62.8 208.9 61.3 206.2 59.9 203.4C57.2 197.6 50.2 177.7 50.8 171.7Z","k":"m","r":"obliques_upper_R","g":"obliques_R"},{"d":"M90.8 178.1C94.8 177.9 99.4 177.6 103 179.7C105 180.8 106 182.6 106.6 184.7C107.4 188.4 107.1 192.8 105.1 196C101.5 195.2 98.2 195 94.5 194.7C92.9 194.6 91.2 194.2 90.2 192.9C88.3 190.5 88.7 185 89 182C89.2 180.3 89.6 179.2 90.8 178.1Z","k":"m","r":"abs_2_L","g":"abs"},{"d":"M79.6 177.9C81.7 177.8 83.6 178 85.5 178.2C85.9 179.1 86.2 180 86.4 181C86.9 183.5 87.5 191 85.7 193.1C83.9 195.1 77.9 194.8 75.3 195C73.7 194.9 72.3 195.8 70.7 195.5C69.4 194.5 69 192.9 68.8 191.3C68.4 188.2 68.6 184 70.7 181.5C72.9 178.7 76.3 178.1 79.6 177.9Z","k":"m","r":"abs_2_R","g":"abs"},{"d":"M128.4 228.1C128.8 228.1 129.3 228.2 129.7 228.3C132.9 231.2 133.5 241.7 134.1 245.9C134.7 249.2 135.5 252.7 135.7 256.1C135.9 259.3 134.5 261.1 132.4 263.3C131.5 263.3 130.8 263.4 129.9 263C127.2 259.7 128 253.7 127.2 249.7C126.7 247.3 125.7 245 125.2 242.5C124.3 237.6 125.6 232.2 128.4 228.1Z","k":"m","r":"hip_flexor_L","g":"hip_flexor_L"},{"d":"M48.7 228.3C49.3 228.6 49.8 228.7 50.3 229.3C53.3 232.6 54.5 240.1 53.8 244.4C53.4 246.4 52.3 248.3 52 250.3C51.7 252.6 51.8 254.9 51.7 257.2C51.6 260.1 51.2 262.3 49 264.3C48.5 264.2 48.1 264.1 47.7 263.9C46.1 263 44.4 260.7 44 258.9C43.4 256.1 46 236.4 46.9 232.8C47.2 231.1 47.8 229.8 48.7 228.3Z","k":"m","r":"hip_flexor_R","g":"hip_flexor_R"},{"d":"M161 214.2C161.1 214.3 161.2 214.3 161.3 214.4C162.6 215.5 164.3 219.9 164.7 221.6C166.3 228.6 166.5 236 167 243.1C167.6 252.4 168.2 261.7 169.2 270.8C169.8 275.8 171.5 281.5 171.8 286.2C171.3 286.3 170.9 286.4 170.4 286.4C169.9 286.2 169.5 286 169.1 285.6C168.4 285 167.9 284.1 167.6 283.2C166.7 280.1 166.5 276.1 166.1 272.9C164.4 258.9 164 244.7 162.8 230.7C162.4 225.2 161 219.7 161 214.2Z","k":"m","r":"forearm_outer_L","g":"forearm_L"},{"d":"M90.1 162.2C94.5 162.4 99.3 163.2 102.5 166.5C105 169.1 106.2 173.6 105.8 177.1C105.7 178.1 105.1 178.4 104.4 178.9C101.6 177.5 99.2 176.5 96 176.2C94.7 176.1 93.2 176.1 92 175.7C90.6 175.3 89.6 174.6 89 173.3C87.5 170.2 89 165.3 90.1 162.2Z","k":"m","r":"abs_1_L","g":"abs"},{"d":"M83 162.4C83.6 162.3 84.2 162.2 84.9 162.4C85.4 162.5 85.9 162.9 86.1 163.4C87.3 165.5 87.2 171 86.4 173.2C85.1 177.1 80.3 175.8 77.1 176.4C75.9 176.6 74.7 177.2 73.6 177.7C73.4 177.9 73.1 178 72.8 178.1C72 178.5 71.4 178.8 70.5 178.5C70 177.9 69.7 177.5 69.6 176.8C69.1 173.9 70.7 169.9 72.4 167.6C75 163.8 78.7 163.2 83 162.4Z","k":"m","r":"abs_1_R","g":"abs"},{"d":"M50.5 166.8C52.2 167 54.2 168.1 55.8 168.8C59.7 170.3 63 171.1 67.2 171.3C67 173.1 66.5 174.8 66.3 176.6C66 179.2 66 181.8 66 184.5L65.7 184.9C63.6 184.1 61.8 182.2 60.2 180.6C57.6 178 50.4 170.3 50.5 166.8Z","k":"m","r":"side_ribs_R","g":"obliques_R"},{"d":"M124.1 166.9L124.7 167.2C124.8 167.7 124.9 167.9 124.8 168.4C124.2 171.2 115.2 180.6 112.7 182.8C111.7 183.7 110.5 184.4 109.4 185C109.5 180.4 109.2 175.9 108.4 171.3C114.2 171 118.8 169.2 124.1 166.9Z","k":"m","r":"side_ribs_L","g":"obliques_L"},{"d":"M96.4 68.9C96.6 69.1 96.8 69.2 97 69.5C98.7 72.3 96.3 86.6 95.1 89.7C94.2 92.1 93.3 93.5 90.9 94.6C90.5 94.1 90.1 93.6 89.9 93C89.5 91.7 90.7 88.9 91 87.5C91.7 83.8 91.5 79 92.7 75.7C93.5 73.4 95.2 71 96.4 68.9Z","k":"m","r":"neck_front_L","g":"neck"},{"d":"M73.1 69.5C74.5 70.5 76.5 73.9 77.4 75.4C79 78.3 79.1 82.4 79.9 85.6C80.5 88.1 81.5 90.6 82 93.1C82.1 93.7 82 94.2 81.8 94.7C81.4 94.8 81.4 94.9 80.9 94.8C80 94.7 78.8 93.8 78.2 93.1C74.2 88.4 72.4 75.4 73.1 69.5Z","k":"m","r":"neck_front_R","g":"neck"},{"d":"M66.6 84.7C67.9 86.5 68.5 89.7 69.1 91.9C66.1 91.4 63 91.4 60 91.1C58.7 91 57.4 90.7 56.1 90.5C59.6 88.5 63 86.5 66.6 84.7Z","k":"m","r":"upper_trap_R","g":"upper_trap_R"},{"d":"M102.5 84.5C104.3 84.7 109.4 87.6 110.8 88.9C111.4 89.4 111.6 89.7 111.6 90.5C110.7 91 109.9 90.9 108.9 90.9L100.3 91.6C100.9 89.2 101.6 86.8 102.5 84.5Z","k":"m","r":"upper_trap_L","g":"upper_trap_L"},{"d":"M103.6 395C103.8 395.2 104 395.3 104.1 395.5C104.8 396.9 103.8 400.1 104 401.7C104.3 403.8 106.9 407.1 106.5 408.9C105.5 408.1 104.8 407.3 104.2 406.1C102.3 402.5 102.3 398.8 103.6 395Z","k":"x"},{"d":"M103.6 395C103.8 395.2 104 395.3 104.1 395.5C104.8 396.9 103.8 400.1 104 401.7C104.3 403.8 106.9 407.1 106.5 408.9C105.5 408.1 104.8 407.3 104.2 406.1C102.3 402.5 102.3 398.8 103.6 395Z","k":"x"},{"d":"M83.2 398.1L83.9 398.5C84.1 399 84.3 399.4 84.3 400C84.8 403.4 83 407.4 80.9 410L80.6 410.1C80.3 409.5 81.1 408.3 81.4 407.7C82.6 404.6 82.7 401.3 83.2 398.1Z","k":"x"},{"d":"M83.2 398.1L83.9 398.5C84.1 399 84.3 399.4 84.3 400C84.8 403.4 83 407.4 80.9 410L80.6 410.1C80.3 409.5 81.1 408.3 81.4 407.7C82.6 404.6 82.7 401.3 83.2 398.1Z","k":"x"},{"d":"M87 212.5C87.6 212.5 88.1 212.5 88.7 212.7C89.6 213.1 88.5 214 88.4 214.6C88.4 214.8 88.9 215.9 89 216.3L88.6 216.3L87.3 215.3L86.2 215.6C85.9 216.2 85.5 216.6 85.1 217.1C85 216.9 84.9 216.8 84.9 216.6C84.6 214.9 86 213.6 87 212.5Z","k":"x"},{"d":"M87 212.5C87.6 212.5 88.1 212.5 88.7 212.7C89.6 213.1 88.5 214 88.4 214.6C88.4 214.8 88.9 215.9 89 216.3L88.6 216.3L87.3 215.3L86.2 215.6C85.9 216.2 85.5 216.6 85.1 217.1C85 216.9 84.9 216.8 84.9 216.6C84.6 214.9 86 213.6 87 212.5Z","k":"x"},{"d":"M67.2 402.4L67.7 402.9C67.8 404.2 68.5 408.8 67.9 409.6C67.4 408.8 66.9 407.8 66.6 406.9C66.1 405.2 66.4 403.9 67.2 402.4Z","k":"x"},{"d":"M67.2 402.4L67.7 402.9C67.8 404.2 68.5 408.8 67.9 409.6C67.4 408.8 66.9 407.8 66.6 406.9C66.1 405.2 66.4 403.9 67.2 402.4Z","k":"x"},{"d":"M119.5 399.4C119.5 399.4 119.5 399.4 119.5 399.5C120.2 402 119.4 405.1 118.2 407.3C117.6 405.7 119 401.1 119.5 399.4Z","k":"x"},{"d":"M119.5 399.4C119.5 399.4 119.5 399.4 119.5 399.5C120.2 402 119.4 405.1 118.2 407.3C117.6 405.7 119 401.1 119.5 399.4Z","k":"x"},{"d":"M42.7 94.1C47 93.3 54.3 92.5 57.3 96.6C53.5 98.3 47.1 103.1 44.8 106.6C41.4 109.7 35.4 119.8 33.9 124.4C32.9 126.3 31.4 132.3 29.8 132.8C26.8 130.9 28.8 123.2 29.1 120.3C30 113.5 31.6 108.2 34.3 101.9C37.4 98 35.6 96.9 42.7 94.1Z","k":"m","r":"front_delt_R","g":"front_delt_R"},{"d":"M33.6 95.1C35.9 94.2 38.4 93.9 40.8 93.5C41.3 93.7 42.2 93.9 42.7 94.1C35.6 96.9 37.4 98 34.3 101.9C33.7 102.5 32.8 103.5 32.2 103.9C27.9 113.6 26.5 122.9 27.7 133.5C27.8 134.8 25.6 140.9 24 141.7C20.6 139.7 20.9 121.1 20.6 117C21.2 113.7 22.4 110.4 23.4 107.2C24.1 101.4 28 96.8 33.6 95.1Z","k":"m","r":"side_delt_R","g":"side_delt_R"},{"d":"M33.6 95.1C35.9 94.2 38.4 93.9 40.8 93.5C41.3 93.7 42.2 93.9 42.7 94.1C35.6 96.9 37.4 98 34.3 101.9C33.7 102.5 32.8 103.5 32.2 103.9C33.2 100.4 35.9 97.5 38.2 94.7C36 95.4 33.8 96.3 31.6 97.2C32.2 96.5 33 95.7 33.6 95.1Z","k":"b"},{"d":"M23.4 107.2C24.1 101.4 28 96.8 33.6 95.1C33 95.7 32.2 96.5 31.6 97.2C28.3 100.6 26.3 103.2 23.4 107.2Z","k":"b"},{"d":"M19.7 171.1C20.7 161.4 21.4 150.9 26.1 142.1C26.7 141 27.6 138.8 28.8 138.4C29.3 139 29.3 139.2 29.1 140.1C27 152 25.8 164.1 25.6 176.1C25.4 180.3 26.3 194.7 24.1 197.3C23.3 197.7 23.2 197.7 22.2 197.8C20.8 196.2 20.6 191.3 19.9 188.9C19.5 183.2 19.6 176.9 19.7 171.1Z","k":"m","r":"biceps_outer_R","g":"biceps_R"},{"d":"M15.3 217.3C15.4 220.8 14.7 231.5 14.4 235C13.9 243 14.2 284.1 10.9 289.3C10 290 9.8 290.2 8.8 290.4L8.1 289.9C8 288.7 9.1 281.6 9.3 279.7C9.9 273.2 10.2 268.8 9.8 262.4C9.9 258.7 9.8 254.9 9.8 251.2C11.4 247.6 11 239.3 11.3 234.8C11.8 226.1 12.1 225.4 15.3 217.3Z","k":"m","r":"forearm_outer_R","g":"forearm_R"},{"d":"M24.4 201.7C25.6 202.2 26.4 202.9 27 204.1C31.1 211.4 20.9 252.3 18.9 262.6C17.5 270 16.8 277.7 14.9 284.9C14.7 285.5 14.4 286.1 14 286.7L13.6 286.7C12.8 284.2 14.4 268.8 14.6 265.2C15.2 251.2 15.1 237.2 16.4 223.3C16.8 218.7 17.4 214.1 18.8 209.7C19.9 206.4 21.2 203.4 24.4 201.7Z","k":"m","r":"forearm_mid_R","g":"forearm_R"},{"d":"M34.2 129C35.9 130.7 36.6 139.1 36.8 141.8C38 154.2 37.8 191.1 29.9 200.5C29.3 200.7 29.1 200.7 28.5 200.5C27.7 199.6 27.4 198.6 27.1 197.5C26.2 192.9 26.7 187.7 26.8 183.1C27.2 166.6 28.3 154.2 31.7 138C32.3 135.3 32.6 131.4 34.2 129Z","k":"m","r":"biceps_inner_R","g":"biceps_R"},{"d":"M30.9 206.3C31.5 206.6 31.8 207.1 32 207.7C32.9 209.9 32.8 213.1 32.9 215.4C33.8 233.9 27.7 252.4 20.3 269C20.1 269.4 19.8 269.6 19.6 269.9L19.3 269.6C19.4 262.9 22.7 253.9 23.9 247C25.3 240 26.4 232.8 27.3 225.7C28 220.3 28.3 214.7 29.6 209.3C29.8 208.2 30.3 207.2 30.9 206.3Z","k":"m","r":"forearm_inner_R","g":"forearm_R"},{"d":"M82.3 2C86.6 1.8 90.3 2.6 94.1 4.5C99.6 7.1 105.1 12.2 106.1 18.4C106.7 21.6 106.3 25 106 28.2C105.9 30.2 105.5 32.9 106.1 34.8C106.9 34.4 107 33.4 107.5 32.8C107.9 32.3 108.2 32.4 108.7 32.3C109.2 32.6 109.3 32.8 109.5 33.3C110.8 36.4 109.8 40.9 108.5 43.9C107.9 45.2 107.1 46.9 105.8 47.4C105.3 46.9 105 46.5 104.4 46.2C102.8 47.7 103.1 52.6 102.5 54.7C102.1 56.4 101.3 58 100.5 59.4C97.3 64.8 91.2 69.4 85.1 70.9C81.7 71 79.1 70.4 76.2 68.6C71.9 65.8 67 60.9 65.6 55.9C64.9 53.5 64.9 50.9 64.3 48.5C64 47.6 63.8 46.7 63 46.2C62.6 46.6 62.1 47 61.7 47.4C60.3 46.5 59.3 44.4 58.7 42.8C57.4 39.8 56.5 36.3 57.9 33.2C58.2 32.5 58.4 32.5 59 32.3C60 32.8 60.6 34 61.3 35C62.8 34 60.8 21.7 61.4 18.4C61.9 15.8 63.1 13.5 64.7 11.5C69.1 6 75.4 2.8 82.3 2Z","k":"b"}]},"back":{"vb":"0 0 188.559 579","paths":[{"d":"M89.8 0C91.2 -0 92.7 -0 94.1 0.1C100.7 0.5 107.3 3.2 111.7 8.4C117.8 15.4 118.3 22.9 117.6 31.7C118.8 32.8 120.1 33.9 120.6 35.4C121.9 38.9 121.1 43.4 119.4 46.7C118 49.6 116.4 50.5 113.5 51.5C112.2 58.7 110.3 62.4 105.9 68.2C106 70.6 106 72.7 107.1 74.9C107.9 76.5 109.1 77.9 110.5 79C113.4 81.4 123.6 86.9 127.1 87.4C132.7 88.2 138.3 86.8 143.8 88.7C152.6 91.8 157 102.1 160.7 109.9C166.3 121.8 161 127.6 163 138.3C164.5 146.4 166.9 154.2 168.3 162.3C169.9 171.8 170.4 181.5 172.9 190.8C175.8 201.8 181.3 211.5 183.4 222.7C186.8 240.7 186.2 259.1 187 277.3C187.2 282.6 188.6 287.8 188.6 293.1C188.5 297 186.9 300.6 186.5 304.4C185.9 309.1 187.1 314.9 185.4 319.4C184.1 322.5 181.3 325.6 178.2 326.7C177.2 327.1 176 327.3 175 327.2C173.9 327 167.3 324.9 166.4 324.5C160.8 321.8 162.2 316.2 160.5 311.6C160 310.2 158.8 309 158.4 307.5C158.2 306.8 158.3 306.1 158.6 305.4C159.4 303.5 161.3 301.7 162.5 300C163.7 298.3 164.6 296.5 165.8 294.8C167 293 168.6 291.4 169.6 289.4C171.5 285.7 166.9 269.1 165.7 264.7C164.4 259.6 163 254.4 160.8 249.5C157.7 242.8 153.5 236.7 151.7 229.5C149.1 218.7 150.4 207.9 149 197C148.2 190 145.1 183.5 143.1 176.8C141.6 171.8 140.7 166.7 139.1 161.7C136.5 172.2 129.5 185.2 129.3 195.1C129.1 204.5 135.6 213 139.4 221.3C141.7 226.4 143.9 232.2 145.6 237.6C146.9 241.9 147.6 246.3 148.6 250.6C149.7 255.5 151.2 260.4 152.1 265.3C153.7 275.2 153.4 285.6 153.3 295.6C153.1 322.8 148.3 343.2 140.8 369C138.1 378.1 134.1 387.1 132.8 396.6C130.1 414.7 141.1 436.5 140 456.5C139.1 471.6 133.6 485.2 129.5 499.5C125.3 514.5 123.5 530 124.1 545.5C124.2 548.5 124.4 551.6 125.3 554.4C127.5 561.1 134.2 567.6 134.9 574.1C135 575.2 135 576.6 134.1 577.5C133.3 578.3 131.9 578.6 130.8 578.6C125.5 578.9 110.5 579.1 105.8 578C104.4 577.7 102.9 577.1 101.9 576.1C98.7 573 101 568.2 102.2 564.8C103.2 562.3 104.2 559.8 104.8 557.2C105.9 551.8 105.6 546 105.6 540.5C105.6 529.9 105.2 519.2 103.8 508.7C102.6 499.6 100.6 490.7 99.3 481.6C97.8 470.8 96.8 459.8 96.3 448.9C95.7 437.6 96.4 426.3 98.2 415.1C99.2 408.7 101.8 401.5 101.5 395.1C101.3 390.3 99.6 385.5 98.8 380.8C97 368.6 95.6 356.3 95.3 343.9V309.9C95.3 318.1 93.7 353 92.9 359.9C91.9 369.9 89.8 379.8 88.1 389.7C87.7 392.2 87.5 394.7 87.7 397.2C88.1 403.5 90.1 409.6 91.2 415.8C93.1 427.6 93.4 439.5 92.9 451.5C92.4 461.9 91.3 472.5 89.7 482.9C88.7 489.6 87.5 496.4 86.6 503.1C85.3 514 84.8 524.5 84.9 535.4C84.9 542.7 85.7 550.5 87 557.7C87.7 561.7 89.1 565.5 89.4 569.6C89.6 571.4 89.5 573.3 88.8 575C88.5 576 87.7 577.5 86.7 577.9C85.2 578.5 83.5 578.7 81.8 578.9C77.6 579.2 58.4 579 55.2 577.5C54.9 577.2 54.8 577 54.7 576.6C52.9 570.6 61 563.6 63.6 558.7C66.3 553.6 65.9 546.2 65.8 540.6C65.7 527.2 64.7 514.6 61.2 501.7C57.1 486.5 49.5 471.1 49.3 455.1C49 436 58.6 416.6 56.9 398.1C56.1 390.4 53 382.9 50.6 375.6C49.1 370.9 47.7 366.1 46.3 361.3C39.2 335.9 34.8 306.7 35.2 280.3C35.4 266.5 39.6 246 43.9 232.9C45.4 228.4 47.2 223.9 49.2 219.6C53 211.7 58.3 204.2 57.7 195.1C57.2 187.5 53.6 180.7 51 173.7C49.7 170.1 48.8 166.3 47.7 162.6C45.6 167.6 44.8 173.2 43.3 178.4C41.7 184.2 38.8 190.5 38.3 196.5C37.4 207.5 38.6 219.1 36.1 230C34.4 237.6 30.4 244.2 27.3 251.2C23.7 259.4 18 281.6 18.2 289.8C19.4 291.8 21.2 293.3 22.6 295.1C24.3 297.2 30.7 305.9 30.6 308.2C30.5 309.7 29.2 310.9 28.8 312.3C27.5 315.8 28.5 321.2 25.6 323.9C23.4 326 16.4 328.8 13.3 328.7C10.4 328.5 7.2 325.6 5.4 323.4C1.6 318.7 3.1 310.8 2.5 305C2.1 301.9 0.3 299.1 0.1 296.1C-0.2 293.2 0.4 290.1 0.7 287.2C1.1 283.2 1.5 279.2 1.6 275.2C1.9 261.2 0.9 246.7 2.9 232.8C4 225.3 5.4 217.7 7.9 210.5C9.8 204.7 12.4 199.2 13.9 193.2C16.4 182.9 16.8 172 18.5 161.6C19.6 154.7 21.9 148 23 141.1C24.1 134.2 21.8 127.5 22.5 120.6C23 114.7 25.5 109.4 28.2 104.2C33.6 93.6 38.5 89.2 50.6 88.4C53.9 88.2 57.5 88.1 60.7 87C62.9 86.3 64.9 84.7 67.1 83.6C69.7 82.2 72.7 81 75 79.1C78.2 76.3 78.7 72.5 78.9 68.6C73.8 62 72.4 60.2 70.9 51.7C69.4 51.4 68.2 51.1 67 50C64.3 47.4 62.9 42.7 62.9 39C62.9 35.7 64.1 34 66.3 31.7C66.2 31.1 66.1 30.4 66.1 29.7C65.5 22 67.2 13.9 72.4 8C76.9 2.7 83 0.5 89.8 0Z","k":"o"},{"d":"M70.3 44.5C70.2 46.1 70.6 48.4 69.1 49.3C67.8 48.6 66.6 44.2 65.9 42.6C64.9 40.4 65 37.4 66 35C66.4 34.9 66.5 35.1 66.8 35.9C67.8 38 72.7 47.1 74.6 47.8C74.8 47.1 74.6 46.3 74.2 45.7C69.9 39.2 67.1 30.9 68 23C68.7 17.4 72 10.1 76.8 6.6C86.5 -0.5 103.9 0.8 111.1 11C115.8 17.5 116.6 25.3 115.5 33C116.1 34 116.2 33.7 117.8 34.2C119.4 37.9 119.2 40.8 117.8 44.6C117.4 45.7 116 48.5 114.8 48.9C113.7 47.6 114.5 46 113.6 45.9C112.1 48.3 111 53.7 110.1 56.6C108.8 60.4 108 62.2 105.9 65.7C105.9 62.4 106 60.8 105.1 57.7L104.7 57.5C103.1 61.8 103.3 71.6 105.2 76.1C108.1 82.9 117.7 85.7 123.9 88.9C127.1 90.5 132.2 89.7 135.7 89.6C149 88.8 153.6 101.5 158.7 111.3C163.6 120.6 158.9 130.3 160.6 139.8C161.8 146.1 164.6 152.2 165.5 158.5C167.8 169.2 167.7 181.3 170.7 191.8C173.8 202.7 179.2 212 181.2 223.4C184.6 242.5 183.6 261.8 185 281.1C185.4 287 187.5 293.1 185.2 298.7C181.6 307.8 188 319.2 177.3 324.8C174.2 326.4 172 322.9 169.2 322.7C165 322.4 162.6 316.6 163.4 313C163.9 311 164.9 308.9 165.7 307C164.6 308 163.6 309.1 162.3 309.5C158.7 307 164.5 301.8 165.3 299.8C166.8 295.6 171 292.7 172.8 289.4C173 282.2 165.8 253 161.8 246.6C149.8 227.7 153.3 215.3 151 194.2C150.5 190 147.5 183.2 146.2 179C144.2 172.7 142 164.3 140.6 158C140.1 155.8 141.2 141.4 142 139.3C144.4 132.7 148.7 129.5 147.6 121.1C147.4 119.5 147.6 117.5 146.8 115.9L146.2 115.5L145.7 115.8C145 118.5 145.7 124.9 144.8 127.5C143.8 130.6 139.7 135.9 139 139.3C137.3 147.2 138.4 153.3 136.6 161.6C135.5 166.3 134.1 170.9 132.3 175.4C122.5 200.7 126 200.1 136.9 222.3C139 226.5 140.8 230.8 142.3 235.2C143.9 240.1 144.5 244 145.4 248.9C146.1 252.3 147.5 256.2 148.3 259.7C149.6 266.1 150.5 273.6 150.6 280.1C151.1 298.8 150 319.1 146.2 337.4C143.7 349.6 139.6 361.8 136.7 374C134.9 381.8 130.8 389.4 130 397.7C129.1 406.3 130.3 413.2 132.2 421.5C132.8 424 133.8 428.5 133.9 430.9C134.7 434.2 135.5 437.5 136 440.9C142.4 460.1 130.4 485.5 125.5 504.2C123.5 511.6 122.4 519.1 122 526.7C121.6 535.2 120.8 547 123 554.9C125.1 562.7 132.2 567.8 132.4 576.1C128.3 576.4 122.9 576.3 122.4 576.3C121.9 576.3 120.9 576.3 121.4 576.3C121.9 576.3 120 576.3 119 576.1C117.5 576.1 119 576.1 117.4 576.1C108.8 576.4 99.4 578.8 104.1 566.4C105.3 563.3 107.3 558.1 107.6 555C108.9 541.9 108.1 528.3 107.2 515.1C106.4 506.9 104.5 498.9 103.3 490.8C99.6 467 96.2 442.4 100.2 418.4C101.5 410.9 104 403.4 104 395.7C104.1 390.7 102.3 385.5 101.5 380.5C96.8 352.6 97.9 324.2 96.9 296.1C101.2 298.8 107.3 302.4 112.2 303.6C124.7 306.7 139.1 298.5 142.1 285.9C130.8 306.8 111 304.8 94.5 291C82.3 299.5 72.7 305.9 58 297.9C55.4 296.5 53.9 295.6 51.7 293.6C50.3 292.3 48.3 287.8 47.2 287.4L47 287.9C47.3 288.7 47.3 288.9 47.8 289.7C51.9 296.6 58.1 301.6 65.9 303.6C75.4 306 83.4 301.5 91.4 296.6C91.9 302.4 91.8 312.5 91.8 318.5C91.8 333.5 91.6 349 89.8 363.9C89.1 369.4 88.3 374.9 87.4 380.4C86.7 384.3 85.6 389.7 85.4 393.6C85 402.8 88 411.9 89.4 420.9C92.9 444.8 89.5 468.9 86 492.7C82.8 513.9 79.2 536.6 84.6 557.9C85.6 562.1 89.6 572.5 85.7 575.7C82.9 577.2 75.8 576.5 72.7 576.5C71.2 576.4 70.8 576.4 70.3 576.4C69.7 576.4 70 576.5 68.8 576.4C64.4 576.4 61 576.4 56.6 575.9C58.1 569.1 60.8 566.8 64.6 561.7C69.6 554.9 68.8 536.2 68.1 527.6C67.4 517.8 65.7 508.2 62.9 498.9C59.3 486.4 52.9 469.7 51.9 456.8C50.4 437.5 61.7 415.4 59.1 396.4C57.5 387.1 53.8 378.2 51.2 369.2C41 334.4 35.4 297.8 39.8 261.7C40.3 257.2 41.9 252.4 42.8 247.9C43.9 243.1 44.9 238.1 46.4 233.4C47.7 229.2 49.3 225.2 51.2 221.3C55.2 213.2 60.5 205.6 60.2 196.4C59.7 183.5 52.4 173 49.3 160.3C47.4 152.3 48.4 147 46.7 139.5C45.9 136.1 42.2 131.3 40.9 127.1C39.8 123.8 40.7 117.3 39.5 116.2L39.1 116.5C36.2 126.2 39.5 130.8 43.7 139C45.2 141.9 45.2 147.4 45.4 150.6C45.5 152.9 46 155.5 46 157.8C44.9 165.2 42.3 173.2 40.3 180.4C38.8 185.7 36.6 190.4 36 195.8C34.6 207.2 36.4 218.7 33.8 229.9C31.8 238.8 26.5 245.5 23.6 254C22 258.6 20.9 263.4 19.7 268.1C18.7 272.1 18.1 278.4 16.3 281.9C16.6 283.5 15.6 289.5 16 290.1C18.1 293.6 22.9 298.9 24.9 303C25.4 304 28 307 28.8 308.1C28.1 309 27.2 310 26.4 310.9L23.2 307.7C26.5 315.7 27.5 316.2 22.2 323.9C18.3 324.2 17.1 325.2 13.7 327.2C11.5 325.6 8.4 323.3 6.4 321.4C4.6 316.4 5.4 309.1 4.8 303.8C4.5 301.3 2.4 298 2.5 295.5C2.7 290.6 3.6 285.8 3.7 280.8C4 261.6 3 244.9 6.4 225.8C8.3 213.8 13.6 202.8 16.7 191.1C18.4 184.7 18.8 177.9 19.4 171.3C19.6 168.2 20.3 165 20.7 161.9C21.6 154.1 24.6 146.6 25.6 138.8C26.1 135.6 25.7 130.1 25.3 126.8C24.5 118.3 26.4 113.8 30.3 106.3C33.6 100.1 34.9 95.5 41.9 92.2C47.3 88.7 54.7 91.9 60.7 89.6C63.6 88.5 65.5 87.4 68.1 85.9C75.1 82 77.7 81.2 81.1 73.9L81.1 73.7C81.2 70.9 81.4 59.1 79.3 57.9C78.2 59.7 79 64.2 79.4 66.2C73.3 57.5 73.9 53.5 70.3 44.5Z","k":"b"},{"d":"M136 440.9C136.1 450.9 138.2 462.4 133.1 471.5C131.4 474.5 129 477.4 125.6 478.3C124.5 478.6 123.2 478.6 122.2 477.9C121.3 477.3 120.8 476.3 120.7 475.2C120.3 471.7 121.3 467.5 121.6 464C121.9 460.3 122 456.6 122.1 452.9C122.4 442.6 121.4 432.1 122.1 421.8C122.2 420 122.4 416.1 123.7 414.7C123.9 414.4 124.5 414.4 124.9 414.5C128.3 415.3 132.4 427.8 133.9 430.9C134.7 434.2 135.5 437.5 136 440.9Z","k":"m","r":"calf_outer_R","g":"calves_R"},{"d":"M28.3 214C29.5 212.7 30.4 211.9 32.1 211.6C37.2 213.3 31.6 230.1 30.2 234C25.3 247.5 17.5 260.2 16.6 274.9C16.5 277 16 280 16.3 281.9C15.6 283.5 14.7 285.8 13.7 287.1L13.1 287.2C12.9 287 12.7 286.8 12.7 286.6C11.9 284.6 16.9 240.8 17.9 235.5C18.8 230.7 19.9 223.6 23 219.9C24.7 217.8 26.8 216.2 28.3 214Z","k":"m","r":"forearm_back_L","g":"forearm_L"},{"d":"M41.9 92.2L42.1 92.3C46.1 92.6 47.4 91.3 51.3 93.8C56.6 104 50.4 102.6 44.2 109.2C40.8 112.8 37.4 116.1 35 120.5C33 123.6 30.6 132.6 28.3 133.9L27.7 133.9C26.3 131.2 27.2 128.6 25.3 126.8C24.5 118.3 26.4 113.8 30.3 106.3C33.6 100.1 34.9 95.5 41.9 92.2Z","k":"m","r":"rear_delt_L","g":"rear_delt_L"},{"d":"M81.1 73.7C81.7 71.6 81.7 68.9 82 66.5C82.5 62.2 80.9 55.6 87.9 57.2C88.8 57.4 89.6 58.2 90.1 59C91.5 66.1 90.4 78.6 90.4 86.1C87.3 89.3 84.5 88.6 80.4 89.3C77.8 89.8 74.9 90.4 72.4 90.8C70.2 91.2 65.5 93.3 63.9 92.8C64.3 89.3 77.3 84.3 80.2 81.5C81 79.2 81.8 76.4 81.1 73.9L81.1 73.7Z","k":"m","r":"neck_back_L","g":"neck"},{"d":"M96.2 91.3C99.7 91.1 103.1 91.4 106.5 91.9C111.4 92.6 127 95.1 129.8 98.9C130.8 104 122.7 107.6 120.5 111.7C118.4 115.6 125.7 121.3 126.7 125.2C127.1 126.7 127 128.6 126.4 130C124.8 133.2 121.4 136.3 119.2 139.2C115.9 143.9 113 148.8 110.2 153.8C107.6 158.6 105.3 163.7 103.3 168.7C102 172.2 100.9 176 99 179.2L98.4 179.2C97.4 178.1 97.1 176.7 96.8 175.3C95.6 169.2 95.7 162.8 95.5 156.7C95 142.7 94.9 128.7 94.9 114.7C94.9 108.6 94.4 99.4 95.2 93.8C95.4 92.8 95.7 92.1 96.2 91.3Z","k":"m","r":"upper_back_R","g":"upper_back_R"},{"d":"M82.5 91.3C84.4 91 86.7 90.9 88.5 91.7C89.6 92.7 89.6 95.2 89.7 96.7C90.3 109.1 90.2 121.7 90.2 134.1C90.3 142.3 90.2 150.5 89.9 158.8C89.8 163.2 89.8 167.8 89.3 172.2C89.1 174.3 88.9 177.8 87.4 179.5L87 179.4C85.3 176.1 84.3 172.6 82.9 169.1C81.4 165.4 79.6 161.8 77.9 158.2C74.8 151.8 71 145.8 66.9 140C64.6 136.6 60.2 133.3 58.8 129.4C56.9 123.6 62.4 120.3 64.5 115.7C65 114.6 65.4 113 64.8 111.9C64.4 111 63.3 110.1 62.6 109.4C59.3 106.1 56.3 103.6 54.5 99.1C61.3 94.2 74.2 92.2 82.5 91.3Z","k":"m","r":"upper_back_L","g":"upper_back_L"},{"d":"M99.5 243.3C100 243.3 100.5 243.2 101 243.2C114.2 243.1 120.8 257.4 129.5 264.7C132.5 267.2 137 268.2 139.6 270.9C141.3 272.7 141.8 275.1 141.6 277.5C141.1 283.9 136.2 289.4 131.6 293.5C131.2 293.8 131.4 293.7 130.8 294C125.9 297.6 119.3 299.7 113.1 298.6C107.7 297.7 101.1 294.6 97.9 290C96.5 287.9 95.9 285.8 95.6 283.3C94.6 275.8 95.6 267.7 95.8 260C95.9 255.9 95.4 251 96.3 247C96.7 245.3 98.2 244.2 99.5 243.3Z","k":"m","r":"glute_R","g":"glutes_R"},{"d":"M84 243.3C85.5 243.2 87 243.2 88.3 243.9C89.6 244.6 90.2 246.1 90.5 247.4C91.6 251.2 90.8 255.4 91 259.3C91.3 266.9 92.5 275 91.7 282.6C91.5 285.1 90.9 287.4 89.6 289.5C86.8 294.2 81.5 296.9 76.3 298.2C69.7 299.9 63.7 298.1 58 294.7C52.8 291.5 47.9 285.8 46.3 279.9C45.6 277.3 45.6 274.2 47.1 271.9C49.2 268.4 54 267.9 57 265.4C66.5 257.4 70.8 246.3 84 243.3Z","k":"m","r":"glute_L","g":"glutes_L"},{"d":"M58.7 133C60.5 135 62.2 137.1 63.7 139.2C70.7 148.6 76.3 159.5 80.9 170.2C83.5 176.3 85.1 178.5 84.1 185.3V185.3C83.6 188.5 82.9 191.1 82.2 194.2L82.2 194.2C80.9 198.3 77.2 212.3 74.3 214.2C72.1 214.5 69.5 212.3 69 210.4C63 188.3 49.7 167.9 48.7 144.6C48.6 142.7 47.7 139.6 47.1 137.7C53.4 137.4 55 138.6 58.7 133ZM82.9 194.2C83 194.2 83.1 194.2 83.4 194.5V194.5C83.1 194.2 83 194.2 82.9 194.2Z","k":"m","r":"lats_L","g":"lats_L"},{"d":"M126.6 133.1C126.9 133.3 126.8 133.2 127 133.5C127.5 134.1 128 134.7 128.5 135.3C131.2 138.2 134.8 137.6 138.4 137.8C136.6 144.7 136.8 151.7 135.2 158.6C131.8 172.6 125.9 186 120.9 199.4C119.6 202.8 119.2 206.3 117.9 209.6C117 212 115.7 213.4 113.5 214.4C112.7 214.3 112 214.2 111.4 213.6C108.5 211.1 102 186.5 101.7 182.3C101.5 177.6 103.7 173.4 105.5 169.3C110.7 156.8 117.4 143.2 126.6 133.1Z","k":"m","r":"lats_R","g":"lats_R"},{"d":"M139.6 298.5C139.9 298.5 140.3 298.5 140.5 298.5C141.3 298.6 141.4 298.7 141.8 299.4C143.4 330.7 136.3 358.1 129.1 388.3L126.6 390.7L125 389C122.4 385.3 121.2 380.3 120.6 375.9C119.3 366.5 119.9 356.5 120.2 347C120.7 333.2 121.6 319.3 121.8 305.5C124.6 304.8 127.3 304.2 129.9 303C133.1 301.5 136.2 299.5 139.6 298.5Z","k":"m","r":"hamstring_outer_R","g":"hamstrings_R"},{"d":"M48.6 298.5C53.1 298.3 58 302 62.1 303.6C64.3 304.5 66.5 304.9 68.7 305.6C69.7 310.6 69.3 316.5 69.5 321.7C69.9 334.3 70.1 346.9 69.8 359.5C69.7 365.2 69.8 371.1 69.1 376.9C68.7 380.7 67.8 384.2 66.3 387.7C65.8 388.7 65.4 389.7 64.3 390.3C63.5 390.2 63.2 390.1 62.6 389.4C59.2 385 58.8 377.2 57.6 371.9C52.3 348.5 45.7 322.6 48.6 298.5Z","k":"m","r":"hamstring_outer_L","g":"hamstrings_L"},{"d":"M110.2 412.6C111.7 412.7 112.7 413 113.8 413.8C117.3 416.5 118.9 421.6 119.5 425.8C120.1 430.1 120.5 434.7 120.6 439.1C120.9 449 120.3 486.4 115.1 493.5C114.2 493.9 113.3 493.7 112.3 493.6C111.6 492.9 110.9 492.1 110.4 491.3C107 486 105.6 479.7 104.3 473.6C101 457.5 100 440.3 103.8 424.2C104.8 419.7 106.1 415.2 110.2 412.6Z","k":"m","r":"calf_inner_R","g":"calves_R"},{"d":"M69.8 436.9C69.8 436.8 69.9 436.6 69.9 436.5C70.2 434.9 70.2 433.2 70.3 431.6C70.8 425.4 71.6 417 77.5 413.3C78.5 412.7 79.6 412.6 80.7 412.9C82.5 413.3 84.1 416 84.7 417.6C85.9 420.3 86.4 423.4 86.9 426.3C89.6 440.3 89 454.1 87 468.2C86.1 474.4 85 480.6 82.7 486.4C81.7 488.7 80 492.5 77.7 493.6C77 493.9 76.5 494 75.9 493.6C71.9 491 70.6 469 70.3 463.7C70 459 69.8 454.2 69.8 449.4C69.8 447.2 69.9 444.8 69.6 442.6C69.7 440.7 69.7 438.8 69.8 436.9Z","k":"m","r":"calf_inner_L","g":"calves_L"},{"d":"M86.3 302.2C87.6 303.7 87.6 312.3 87.6 314.7C87.8 325.6 87.1 336.4 85.7 347.2C84.4 357.1 82.4 367 80.8 376.9C80.3 380.2 80.1 389.5 77.9 391.5C77.5 391.8 77.4 391.7 76.9 391.6C76 390.8 75.6 389.9 75.1 388.8C72.4 379 72.2 368.6 71.7 358.5C70.7 340.9 70.5 323.2 71.1 305.6C76.5 305.6 81.6 304.9 86.3 302.2Z","k":"m","r":"hamstring_inner_L","g":"hamstrings_L"},{"d":"M103.4 301.9C108.8 304.6 113.4 305.4 119.4 305.7C119.8 323 119.6 340.4 118.8 357.7C118.4 366.3 118.1 379.9 115.4 388L115.3 388.4C115 389.7 114.9 390.5 113.6 391.3C113 391.1 112.9 391.2 112.5 390.8C111.7 389.8 111.3 388.4 111 387.2C109.9 382.2 109.7 376.8 108.8 371.7C106.4 357 103.6 342.2 102.8 327.2C102.3 318.7 102.6 310.4 103.4 301.9Z","k":"m","r":"hamstring_inner_R","g":"hamstrings_R"},{"d":"M35 128.8C37 130.8 41 139.4 42 142.3C48.1 159.1 40.6 167.7 36 182.7C34.2 188.8 33.2 195.6 30.5 201.3C29.8 198.3 29.8 195.1 29.4 192C28.7 186.9 27.3 182.5 27.4 177.2C27.5 175.5 27.5 173.9 27.4 172.2C26.9 171.7 26.9 171.7 26.2 171.6C22.8 174.2 23.2 191.6 20.6 196.7L20.2 196.4C20.1 196.1 20 195.8 19.9 195.4C19.8 192.3 20.3 188.8 20.4 185.7C21.2 169.6 22.7 153.1 29.3 138.2C30.8 134.8 32.4 131.5 35 128.8Z","k":"m","r":"triceps_L","g":"triceps_L"},{"d":"M151.5 127.8C153.5 129.8 154.9 132.8 156.2 135.3C164.8 152.8 166.5 178 166.6 197.3C162.7 189.8 164.3 177.6 161.2 172.1C160.8 171.4 160.6 170.9 159.8 170.7C159.7 170.7 159.7 170.8 159.6 170.9C158.7 171.9 158.9 173.7 158.9 174.9C159.8 180.3 158 185.3 157.3 190.5C156.8 193.8 156.7 197.2 155.8 200.4C153.3 194.6 152.2 187.2 150.2 181C148 173.9 144.1 167.5 142.9 160.2C141.2 150.3 143.8 142 148.4 133.4C149.4 131.5 150.2 129.5 151.5 127.8Z","k":"m","r":"triceps_R","g":"triceps_R"},{"d":"M122.7 226.4C125.7 226.2 128.1 226.2 130.8 227.8C135.7 230.9 137.7 237.2 139 242.6C140.1 247.4 143.2 262.6 140.6 266.7C140.3 266.9 140 267 139.6 267C136.6 267.5 132.8 264.2 130.4 262.5C124.6 258.6 120 252.5 114.9 247.6C112.6 245.3 109.8 243.5 107.7 241.2C107 240.6 106.5 240 106.2 239.1C106.1 237.7 106.4 236.6 107.2 235.4C110.2 230.7 117.5 227.4 122.7 226.4Z","k":"m","r":"glute_upper_R","g":"glutes_R"},{"d":"M59.3 226.4C60.1 226.3 60.9 226.3 61.7 226.3C67.4 226.4 74.5 229.5 78.4 233.8C79.9 235.4 80.8 236.9 80.7 239.2C79.4 242.1 75.3 244.5 73 246.7C68.4 250.9 64.5 255.9 59.9 260C57.5 262 55.1 264.1 52.4 265.6C51 266.4 48.6 267.5 47 266.7C46.3 266.4 46.1 265.8 45.9 265.1C44.2 259.1 48.2 238.6 51.4 233C53.2 229.8 55.7 227.4 59.3 226.4Z","k":"m","r":"glute_upper_L","g":"glutes_L"},{"d":"M68.7 441.7C68.3 443.2 68.5 445.3 68.4 446.9C68.4 452.2 68.7 457.4 69.1 462.7C69.4 466.8 70.3 471.7 69.6 475.8C69.5 476.8 69.1 477.5 68.2 478C67.1 478.6 65.4 478.3 64.2 478C61.3 477.1 59.3 474.8 57.8 472.3C52 462 54 442.7 57 431.5C57.9 428 61.7 416.4 65.1 414.8C65.8 414.4 66.2 414.5 66.8 414.7C69.4 418.1 68.6 429.8 68.8 434.4C69 435.2 69 435.5 69.5 436.1C69.8 436.5 69.7 436.5 69.8 436.9C69.7 438.8 69.7 440.7 69.6 442.6C69.1 442.3 69 442.2 68.7 441.7Z","k":"m","r":"calf_outer_L","g":"calves_L"},{"d":"M68.8 434.4C69 435.2 69 435.5 69.5 436.1C69.8 436.5 69.7 436.5 69.8 436.9C69.7 438.8 69.7 440.7 69.6 442.6C69.1 442.3 69 442.2 68.7 441.7L68.8 434.4Z","k":"x"},{"d":"M97.5 183.2C98.5 183.6 99.2 184.2 99.7 185.1C103.6 191.4 104.3 204.1 108 211.4C109.4 214.2 112.3 215.5 113.8 218C115.3 220.3 114.5 223.1 113.8 225.6C111.4 227.9 108.3 229.3 105.9 231.8C104.2 233.5 100.3 239.8 98.7 240.4L98 239.7C96.3 234.4 96.3 189.3 97.5 183.2Z","k":"m","r":"lower_back_R","g":"lower_back"},{"d":"M14 212.9C14.6 212.9 15.1 213.1 15.6 213.3C16.1 213.7 16.4 214.1 16.7 214.6C17.9 218.1 17.4 227 17.1 231C16.5 238.9 14.3 246.6 13.4 254.4C12.7 260.5 12.1 266.7 11.6 272.8C11.3 277.1 11.2 281.5 10.5 285.7C10.3 287.2 9.8 288.5 9.1 289.8C9 289.8 8.9 289.7 8.8 289.7C7.2 288.6 6.9 286 6.7 284.3C5.9 277.9 6.2 271.2 6.1 264.8C5.8 249.5 4.1 225.7 14 212.9Z","k":"m","r":"forearm_back_outer_L","g":"forearm_L"},{"d":"M154.5 211.1C155.2 211.1 155.9 211.1 156.5 211.3C159.2 212.3 165.5 219.2 166.7 221.8C167.8 224.6 168.6 227.8 169.2 230.8C170.6 238.1 177.7 282.3 175.7 287.1C172.4 284.2 172.5 276.1 172 272C171.6 269.3 171 266.4 170.3 263.7C167.7 254.4 163 245.9 159.3 237C156.8 230.7 151.8 217.5 154.5 211.1Z","k":"m","r":"forearm_back_R","g":"forearm_R"},{"d":"M172.4 211.9C172.6 212 172.8 212.1 172.9 212.2C176.5 214.1 178.6 220.9 179.6 224.6C181.2 230.5 181.9 236.5 182.3 242.5C182.9 250.2 182.4 257.9 182.4 265.6C182.4 271.5 182.8 277.7 182.2 283.6C182 285.6 181.6 287.4 180.6 289.1L179.9 288.8C178.9 287.6 178.7 286.2 178.4 284.7C177.8 280.6 177.6 276.3 177.2 272.1C176.6 266.3 175.9 260.5 175.2 254.7C174.2 246.9 172.4 239.2 171.3 231.4C170.5 226.2 169.2 216.2 172.4 211.9Z","k":"m","r":"forearm_back_outer_R","g":"forearm_R"},{"d":"M85.6 186.8L85.8 186.4C86.2 185.2 86.2 184.8 87.2 183.9L87.9 183.8C88.8 184.6 88.9 186.1 89 187.2C89.2 191.8 89.1 197.7 89.2 202.2C89.3 209.7 90.6 234.5 88.5 239.9L87.8 240.5C86.7 239.7 83.8 234.7 82.1 232.8C79.2 229.7 74.9 227.8 72.6 225.1C72.1 222.7 71.9 219.3 73.1 217.1C73.5 216.4 76.1 215.2 76.7 214.5C79.4 211.2 83 198.5 83.4 194.5C83.9 192.2 84.9 189.1 85.6 186.8Z","k":"m","r":"lower_back_L","g":"lower_back"},{"d":"M138.6 91.6C139.6 91.5 140.6 91.5 141.6 91.7C145.5 92.4 148.6 96 150.7 99.1C156.9 108.2 161 118.5 158.9 129.6C158.6 130.9 158.5 132.4 157.3 133.2C156.4 132.8 156.3 132.4 155.8 131.7C152.3 122.3 148.1 114.3 140.5 107.6C137.8 105.2 134.8 103.2 132.1 100.8C132.5 98.5 132.7 95.7 134.1 93.8C135.3 92.2 136.7 91.9 138.6 91.6Z","k":"m","r":"rear_delt_R","g":"rear_delt_R"},{"d":"M129.2 106.9C130.4 106.9 131.5 106.9 132.6 107.3C136.9 108.6 141.5 112 143.6 115.9C143.9 121.8 142.7 128.4 139.8 133.5C139.2 134.3 138.7 134.9 138 135.4C136.2 136.7 133.9 136.1 131.9 135.8C130.4 134.6 129.3 133.3 128.4 131.6C128.5 128.4 128.4 125.2 128.2 122.1C128 118.2 127.1 113.4 127.9 109.6C128.1 108.6 128.6 107.8 129.2 106.9Z","k":"m","r":"shoulder_blade_R","g":"shoulder_blade_R"},{"d":"M96.5 57C100.2 56.9 101.6 56.6 102.1 61.1C102.8 67.6 102.5 75.1 104.5 81.4C109.1 85.8 116.8 86.2 121.1 92.6L121 93C119.2 93.4 115.2 91.4 112.8 90.8C109 89.9 105.2 89.3 101.3 88.9C96.9 88.5 94.9 89.3 94.2 84.1C93.8 80.8 94 76.9 93.5 73.8L93.4 68.9C93.5 65 93.3 62.3 94.1 58.4C94.8 58 95.9 57.4 96.5 57Z","k":"m","r":"neck_back_R","g":"neck"},{"d":"M53.9 107C55 106.9 55.4 106.9 56.3 107.4C57.1 108.5 57.3 109.6 57.4 110.9C57.7 114.4 57.2 118.2 57.1 121.7C56.9 125 57 128.3 57.1 131.5C56.6 132.4 56.1 133.3 55.4 134C54.4 135.2 52.6 136.3 51 136.4C49.5 136.5 48 136.2 46.9 135.2C42.8 129.9 41.6 122.4 41.6 115.8C44.1 111.4 49.2 108.3 53.9 107Z","k":"m","r":"shoulder_blade_L","g":"shoulder_blade_L"},{"d":"M123.6 199.7C124 200 124.3 200.4 124.5 200.9C125.1 202.6 125.4 204.4 126 206.1C126.9 208.8 128.1 211.3 129.1 213.9C129.7 215.3 130.9 218 130.2 219.4C128.9 222.3 125.9 223.2 123.1 224.2C121.1 225 118.9 224.7 116.8 224.7C116.9 218.6 118.5 215.9 119.9 210.3C120.5 207.7 120.7 204.8 121.8 202.3C122.2 201.2 122.8 200.5 123.6 199.7Z","k":"m","r":"back_waist_R","g":"lower_back"},{"d":"M62.2 199.9C62.8 200 63.2 200.2 63.6 200.6C66.2 203 65.5 207.1 66.4 210.2C68.2 216.6 69.7 217.1 70 224.7C68.1 224.8 66.3 224.8 64.4 224.5C60.8 223.4 58.2 222.3 56.1 219.1C56.9 214.3 59.3 210 60.8 205.5C61.4 203.7 61.4 201.5 62.2 199.9Z","k":"m","r":"back_waist_L","g":"lower_back"},{"d":"M177.6 313.9L177.9 314.1C178.1 316.7 180 315.2 181.2 316.9L180.9 317.2L177.2 317L178.2 320.7L177.9 321.3L177.5 321.3C176.4 319.6 175.3 318 174 316.5L174.5 316.2C175.7 315.5 176.7 315 177.6 313.9Z","k":"x"},{"d":"M11.8 316C12.9 316.1 14.5 317.8 15.4 318.5C13.5 319.9 12.6 322.5 11.5 323.3C11.4 321.9 12.1 320.3 11.7 319C10.6 318.3 9.7 318.8 8.5 318.4C9.3 317.4 10.8 317.3 11.5 316.3C11.6 316.2 11.7 316.1 11.8 316Z","k":"x"},{"d":"M119.4 398.4C119.7 398.5 120 398.7 120.3 399C122.6 401.9 121.6 407.7 121.3 411.1L121.1 411.1C120.9 410.6 120.9 410.7 120.9 410.3C120.7 408.2 118.8 399.6 119.4 398.4Z","k":"x"},{"d":"M78.6 398C78.9 398.1 78.8 398.1 79.1 398.4C81.1 400.6 80.8 405.7 80.6 408.5C80 408.5 80 408.5 79.6 408.1C78.3 405.3 78.7 401.1 78.6 398Z","k":"x"},{"d":"M110.6 397.4L110.9 398C110.7 401.6 110.9 405.9 109.2 409.1C109.1 409 108.9 408.8 108.8 408.6C107.6 406.3 109.7 399.8 110.6 397.4Z","k":"x"},{"d":"M69.4 398.3C69.5 398.3 69.5 398.3 69.6 398.4C69.7 398.5 69.8 398.7 69.9 398.9C70 399.6 69.2 403.3 69.1 404.4C68.8 406.6 68.7 408.9 68.7 411.2C68.4 410.8 68.2 410.6 68.1 410.2C66.8 407 68.1 401.3 69.4 398.3Z","k":"x"},{"d":"M178 299.6C178.2 299.8 178.3 300.1 178.4 300.3C178.3 300.8 178.2 301.3 177.9 301.8C176.7 303.7 174.4 305.1 172.3 305.6L172 305.4C172.4 304.5 174.6 303.4 175.5 302.5C176.4 301.7 177.2 300.6 178 299.6Z","k":"x"},{"d":"M10.8 301.2C11.9 301.7 13.3 303.9 14.4 304.8C15.5 305.7 16.8 306.2 18.1 306.8C18 306.8 17.9 306.8 17.8 306.8C15.9 307 13.8 306.1 12.4 304.9C11.3 303.8 10.8 302.7 10.8 301.2Z","k":"x"},{"d":"M157 204C157.1 204.1 157.2 204.1 157.3 204.2C158.8 205.5 158.8 207 159 208.8C158.7 208.8 158.4 208.6 158.1 208.5C157 207.1 157 205.8 157 204Z","k":"x"},{"d":"M29.5 205.5C29.7 205.7 29.9 206 30 206.3C30.1 207.6 29.5 208.7 29 209.9L28.5 209.7C28.4 208.4 29.1 206.8 29.5 205.5Z","k":"x"}]}};
+
+/* ---------- Vocabulary ---------- */
+const SENS = [
+  { k: 'tight', label: 'Tight', def: 'Stiff or restricted. It moves, just not freely.', short: 'stiff, restricted' },
+  { k: 'tender', label: 'Tender', def: 'Fine at rest, but sensitive when pressed or loaded.', short: 'sensitive when pressed' },
+  { k: 'sore', label: 'Sore', def: 'Aches on its own, like deep muscle fatigue.', short: 'aches on its own' },
+  { k: 'pain', label: 'Pain', def: 'Sharp, pinching or worrying. Get it checked rather than train through it.', short: 'sharp or worrying' }];
+const SENS_BY = Object.fromEntries(SENS.map(x => [x.k, x]));
+const RANK = { tight: 1, tender: 2, sore: 3, pain: 4 };
+const TAGS = ['Rest', 'Handstand', 'Upper body', 'Lower body', 'Core', 'Cardio', 'Ski', 'Mobility'];
+const EFFORT_RANK = { Light: 1, Moderate: 2, Hard: 3, 'Very hard': 4 };
+// Yesterday's training: a list of sessions, each with its own effort. Older entries only had tags + one effort.
+function sessionsOf(y) {
+  if (!y) return [];
+  if (Array.isArray(y.sessions)) return y.sessions;
+  return (y.tags || []).filter(t => t !== 'Rest').map(tag => ({ tag, effort: y.effort || null }));
+}
+function trainingText(y) {
+  const ss = sessionsOf(y);
+  if (ss.length) return ss.map(x => x.tag + (x.effort ? ` (${x.effort.toLowerCase()})` : '')).join(', ');
+  return (y?.tags || []).includes('Rest') ? 'Rest' : '';
+}
+function packYesterday(d) {
+  if (d.rest) return { tags: ['Rest'], effort: null, sessions: [] };
+  const ss = d.sessions.map(x => ({ tag: x.tag, effort: x.effort || null }));
+  const top = ss.map(x => x.effort).filter(Boolean).sort((a, b) => EFFORT_RANK[b] - EFFORT_RANK[a])[0] || null;
+  return { tags: ss.map(x => x.tag), effort: top, sessions: ss };
+}
+const EFFORT = ['Light', 'Moderate', 'Hard', 'Very hard'];
+const ENERGY = ['Drained', 'Low', 'Steady', 'Fresh'];
+const NAMES = { neck: 'neck', upper_trap: 'upper traps', front_delt: 'front shoulder', side_delt: 'side shoulder', rear_delt: 'rear shoulder',
+  shoulder_blade: 'shoulder blade', chest: 'chest', biceps: 'biceps', triceps: 'triceps', forearm: 'forearm', abs: 'abs', obliques: 'obliques',
+  hip_flexor: 'hip flexor', quads: 'quads', inner_thigh: 'inner thigh', shin: 'shin', upper_back: 'upper back', lats: 'lats',
+  lower_back: 'lower back', glutes: 'glutes', hamstrings: 'hamstrings', calves: 'calf' };
+function regionLabel(key) {
+  const m = key.match(/^(.*)_(L|R)$/);
+  const base = m ? m[1] : key, side = m ? (m[2] === 'L' ? 'Left ' : 'Right ') : '';
+  const n = NAMES[base] || base.replace(/_/g, ' ');
+  return side ? side + n : n.charAt(0).toUpperCase() + n.slice(1);
+}
+const lc = s => s.charAt(0).toLowerCase() + s.slice(1);
+// Each tappable block has its own name; blocks roll up into a muscle group for patterns and History.
+const AREA_NAMES = { neck_front: 'front of neck', neck_back: 'back of neck', upper_trap: 'upper traps', front_delt: 'front shoulder', side_delt: 'side shoulder',
+  rear_delt: 'rear shoulder', shoulder_blade: 'shoulder blade', upper_back: 'upper back', lats: 'lats', chest_upper: 'upper chest', chest_mid: 'mid chest',
+  chest_lower: 'lower chest', biceps_inner: 'inner biceps', biceps_outer: 'outer biceps', triceps: 'triceps', forearm_inner: 'inner forearm',
+  forearm_mid: 'mid forearm', forearm_outer: 'outer forearm', forearm_back: 'back of forearm', forearm_back_outer: 'outer back of forearm',
+  abs_1: 'upper abs', abs_2: 'mid-upper abs', abs_3: 'mid-lower abs', abs_4: 'lower abs', side_ribs: 'side ribs', obliques_upper: 'upper obliques',
+  obliques_lower: 'lower obliques', hip_flexor: 'hip flexor', quad_front: 'front of thigh', quad_outer: 'outer thigh', inner_thigh: 'inner thigh',
+  shin_inner: 'shin', shin_outer: 'outer lower leg', lower_back: 'lower back', back_waist: 'back of waist', glute_upper: 'upper glute', glute: 'glute',
+  hamstring_outer: 'outer hamstring', hamstring_inner: 'inner hamstring', calf_outer: 'outer calf', calf_inner: 'inner calf' };
+const AREA = {};
+for (const side of ['front', 'back']) for (const x of BODY[side].paths) if (x.k === 'm') AREA[x.r] = { g: x.g };
+const groupOf = k => (AREA[k] && AREA[k].g) || k;
+function labelOf(k) {
+  if (!AREA[k]) return regionLabel(k); // older entries stored whole muscles
+  const m = k.match(/^(.*)_(L|R)$/), base = m ? m[1] : k;
+  return (m ? (m[2] === 'L' ? 'Left ' : 'Right ') : '') + (AREA_NAMES[base] || base.replace(/_/g, ' '));
+}
+
+/* ---------- Dates ---------- */
+const pad = n => String(n).padStart(2, '0');
+const isoDate = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const fromIso = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = fromIso(s); d.setDate(d.getDate() + n); return isoDate(d); };
+const dayDiff = (a, b) => Math.round((fromIso(a) - fromIso(b)) / 864e5);
+const fmtDay = s => fromIso(s).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtShort = s => fromIso(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const TODAY = isoDate(new Date());
+
+/* ---------- Safe storage (demo only) ---------- */
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- Demo journal: four weeks of example mornings ---------- */
+function makeDemo() {
+  let seed = 7;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const plan = d => { // training done on date d
+    const wd = fromIso(d).getDay(); const weeksAgo = Math.floor(dayDiff(TODAY, d) / 7);
+    return ({ 1: { tags: ['Handstand', 'Upper body'], effort: 'Hard' }, 2: { tags: ['Lower body'], effort: 'Moderate' }, 3: { tags: ['Rest'], effort: null },
+      4: { tags: ['Handstand', 'Core'], effort: 'Hard' }, 5: { tags: ['Upper body'], effort: 'Hard' },
+      6: weeksAgo % 2 === 0 ? { tags: ['Ski'], effort: 'Very hard' } : { tags: ['Cardio'], effort: 'Moderate' },
+      0: { tags: ['Mobility'], effort: 'Light' } })[wd];
+  };
+  const notes = ['Shoulder pinched slightly at the top of the last handstand hold.', 'Long desk day, neck stiff by the evening.', 'Slept badly, everything feels heavy.', 'Legs felt springy on the slopes.', 'Kept the overhead press lighter than planned.'];
+  const out = [];
+  for (let ago = 27; ago >= 1; ago--) {
+    const date = addDays(TODAY, -ago), y = plan(addDays(date, -1));
+    const marks = [], add = (r, s) => { if (!marks.some(m => m.r === r)) marks.push({ r, s }); };
+    const upper = y.tags.includes('Handstand') || y.tags.includes('Upper body');
+    const late = ago <= 10;
+    if (upper && y.effort === 'Hard' && rnd() < (late ? 0.95 : 0.6)) add('front_delt_L', late && rnd() < .5 ? 'sore' : 'tender', late ? 2 + (rnd() < .4 ? 1 : 0) : 1 + (rnd() < .4 ? 1 : 0));
+    if (upper && rnd() < .45) add('upper_trap_L', 'tight', 1 + (rnd() < .3 ? 1 : 0));
+    if (y.tags.includes('Lower body')) { add('quad_front_L', 'sore', 2); add('quad_front_R', 'sore', 2); if (rnd() < .5) add('glute_R', 'tight', 1); }
+    if (y.tags.includes('Ski')) { add('quad_front_L', 'sore', 3); add('quad_front_R', 'sore', 2 + (rnd() < .5 ? 1 : 0)); add('lower_back_L', 'tight'); add('lower_back_R', 'tight'); }
+    if (y.tags.includes('Cardio') && rnd() < .6) { add('calf_inner_L', 'tight', 1); add('calf_inner_R', 'tight', 1); }
+    if (y.tags.includes('Core') && rnd() < .5) { add('abs_2_L', 'sore'); add('abs_2_R', 'sore'); }
+    if (rnd() < .22) { add('neck_back_L', 'tight'); add('neck_back_R', 'tight'); }
+    const load3 = [1, 2, 3].map(k => plan(addDays(date, -k))).filter(p => p.effort === 'Hard' || p.effort === 'Very hard').length;
+    const energy = load3 >= 3 ? 'Low' : load3 === 2 ? (rnd() < .5 ? 'Low' : 'Steady') : rnd() < .5 ? 'Steady' : 'Fresh';
+    const note = rnd() < .22 ? notes[Math.floor(rnd() * notes.length)] : '';
+    const yesterday = y.tags.includes('Rest') ? { tags: ['Rest'], effort: null, sessions: [] } : { tags: y.tags, effort: y.effort, sessions: y.tags.map(tag => ({ tag, effort: y.effort })) };
+    out.push({ date, marks, energy, yesterday, note, demo: true });
+  }
+  return out;
+}
+
+/* ---------- Rules layer: facts computed from the log ---------- */
+function computeFacts(all, entry) {
+  const hist = all.filter(e => e.date < entry.date).sort((a, b) => a.date < b.date ? -1 : 1);
+  const within = n => hist.filter(e => dayDiff(entry.date, e.date) <= n);
+  const facts = []; let n = 0;
+  const add = (text, dates, kind, r) => { const id = 'F' + (++n); facts.push({ id, text, dates: dates || [], kind, r }); return id; };
+  add(`${hist.length + 1} ${hist.length ? 'mornings' : 'morning'} logged so far, including today.`, [], 'baseline');
+  const y = entry.yesterday || {};
+  if (trainingText(y)) add(`Yesterday: ${trainingText(y)}.`, [], 'yesterday');
+  const pain = entry.marks.filter(m => m.s === 'pain');
+  if (pain.length) add(`Pain marked on ${pain.map(m => lc(labelOf(m.r))).join(', ')}.`, [entry.date], 'pain');
+  const seenGroups = new Set();
+  for (const m of [...entry.marks].sort((a, b) => RANK[b.s] - RANK[a.s])) {
+    const g = groupOf(m.r); if (seenGroups.has(g)) continue; seenGroups.add(g);
+    const name = regionLabel(g), inG = e => e.marks.filter(x => groupOf(x.r) === g), hasG = e => inG(e).length > 0;
+    const f14 = within(14).filter(hasG), f28 = within(28).filter(hasG);
+    let streak = 1; while (hist.some(e => e.date === addDays(entry.date, -streak) && hasG(e))) streak++;
+    if (f14.length >= 2) add(`${name} flagged on ${f14.length} other mornings in the last 14 days.`, f14.map(e => e.date), 'recurring', g);
+    else if (f28.length === 0 && hist.length >= 7) add(`First time ${lc(name)} has been flagged in 4 weeks.`, [], 'new', g);
+    if (streak >= 3) add(`${name} flagged ${streak} mornings in a row.`, [], 'streak', g);
+    if (f28.length >= 3) {
+      const count = {};
+      f28.forEach(e => (e.yesterday?.tags || []).filter(t => t !== 'Rest').forEach(t => count[t] = (count[t] || 0) + 1));
+      const best = Object.entries(count).sort((a, b) => b[1] - a[1])[0];
+      if (best && best[1] >= 2 && best[1] / f28.length >= .5) add(`${best[1]} of ${f28.length} ${lc(name)} flags in 4 weeks came the morning after a day tagged ${best[0]}.`, f28.filter(e => e.yesterday?.tags?.includes(best[0])).map(e => e.date), 'link', g);
+    }
+    const prev = f14.slice(-3).map(e => Math.max(...inG(e).map(x => RANK[x.s] || 0)));
+    if (prev.length >= 2 && RANK[m.s] > Math.max(...prev)) add(`${name} is ${m.s} today, a step up from its last ${prev.length} flags.`, f14.slice(-3).map(e => e.date), 'rising', g);
+  }
+  const hard = [entry, ...hist.slice(-3)].filter(e => ['Hard', 'Very hard'].includes(e.yesterday?.effort));
+  if (hard.length >= 3) add(`Hard or very hard sessions behind ${hard.length} of the last 4 mornings.`, hard.map(e => e.date), 'load');
+  const lowRun = [entry, ...hist.slice(-2).reverse()].filter(e => ['Drained', 'Low'].includes(e.energy));
+  if (lowRun.length >= 3) add('Energy low or drained 3 mornings running.', lowRun.map(e => e.date), 'energy');
+  if (!entry.marks.length) add('No sensations marked this morning.', [], 'clear');
+  return facts;
+}
+
+/* ---------- Read-back: Claude writes, rules decide what is true ---------- */
+function historyLine(e) {
+  const marks = e.marks.length ? e.marks.map(m => `${lc(labelOf(m.r))} ${m.s}`).join('; ') : 'nothing marked';
+  const y = trainingText(e.yesterday) || 'not logged';
+  return `${e.date} | trained yesterday: ${y} | energy: ${e.energy || 'n/a'} | marks: ${marks}${e.note ? ' | note: ' + e.note : ''}`;
+}
+function sanitize(raw, facts) {
+  const ids = new Set(facts.map(f => f.id));
+  const call = ['train', 'modify', 'rest'].includes(raw?.suggestion?.call) ? raw.suggestion.call : 'modify';
+  return {
+    day: String(raw?.day || '').replace(/[.!]+$/, '').split(/\s+/).filter(Boolean).slice(0, 4).join(' '),
+    headline: String(raw?.headline || 'Logged').slice(0, 90),
+    read: String(raw?.read || '').slice(0, 600),
+    patterns: (Array.isArray(raw?.patterns) ? raw.patterns : []).slice(0, 3).map(p => ({ text: String(p.text || ''), facts: (p.facts || []).filter(f => ids.has(f)) })).filter(p => p.text),
+    suggestion: { call, title: String(raw?.suggestion?.title || '').slice(0, 60), steps: (raw?.suggestion?.steps || []).slice(0, 3).map(String) },
+    confidence: ['low', 'medium', 'high'].includes(raw?.confidence) ? raw.confidence : 'low',
+    confidence_reason: String(raw?.confidence_reason || ''),
+    tomorrow: String(raw?.tomorrow || '')
+  };
+}
+function rulesReadback(entry, facts) {
+  const pick = k => facts.filter(f => f.kind === k);
+  const strong = entry.marks.filter(m => m.s === 'sore'), pain = pick('pain').length;
+  const rec = [...pick('recurring'), ...pick('link'), ...pick('streak'), ...pick('rising')];
+  let call = 'train', title = 'Train as planned', steps = ['Warm up the areas you marked before loading them.'];
+  if (pain) { call = 'modify'; title = 'Train around the marked area'; steps = ['Leave the painful area unloaded today.', 'Choose work that keeps it out of the movement.']; }
+  else if (strong.length || pick('streak').length || pick('rising').length) { call = 'modify'; title = 'Lighter session today'; steps = ['Cut load and volume on the flagged areas by about a quarter.', 'Spend the saved time on mobility for those areas.']; }
+  if (pick('energy').length && pick('load').length) { call = 'rest'; title = 'Take a recovery day'; steps = ['Keep movement easy: a walk or gentle mobility.']; }
+  const head = pain ? 'Pain marked, so the fixed rule applies' : rec.length ? `${regionLabel(rec[0].r)} keeps coming back` : entry.marks.length ? 'Logged. Still learning your baseline' : 'A clear morning';
+  return {
+    day: '',
+    headline: head,
+    read: rec.length ? rec[0].text : 'Nothing in your recent log stands out yet. The written read-back needs Claude, which is not available in this view.',
+    patterns: rec.slice(1, 4).map(f => ({ text: f.text, facts: [f.id] })),
+    suggestion: { call, title, steps },
+    confidence: 'low', confidence_reason: 'Written by fixed rules only, without Claude.', tomorrow: entry.marks.length ? `Check whether ${lc(labelOf(entry.marks[0].r))} has eased.` : ''
+  };
+}
+function dayName(entry, rb) {
+  if (entry.marks.some(m => m.s === 'pain')) return 'Protect and rest';
+  if (!entry.marks.length) return 'Full recovery';
+  return { train: 'Ready to train', modify: 'Train with care', rest: 'Recovery day' }[rb.suggestion.call] || 'Train with care';
+}
+async function readBody(entry, all) {
+  const facts = computeFacts(all, entry);
+  const history = all.filter(e => e.date < entry.date).sort((a, b) => a.date < b.date ? -1 : 1).slice(-21).map(historyLine);
+  let rb = null, by = 'rules', notice = '';
+  try {
+    const r = await fetch('/api/read', { method: 'POST', headers: { 'content-type': 'application/json', ...(ownerKey ? { 'x-owner-key': ownerKey } : {}) },
+      body: JSON.stringify({ today: historyLine(entry), facts: facts.map(({ id, text }) => ({ id, text })), history }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.readback) { rb = sanitize(j.readback, facts); by = 'claude'; }
+    else notice = r.status === 429 ? 'Today’s Claude read-backs are used up, so this read uses fixed rules only.'
+      : r.status === 503 ? 'Claude isn’t connected on this site yet, so this read uses fixed rules only.'
+      : 'Claude couldn’t answer just now, so this read uses fixed rules only.';
+  } catch (e) { notice = 'Claude couldn’t be reached, so this read uses fixed rules only.'; }
+  if (!rb) rb = rulesReadback(entry, facts);
+  if (!rb.day) rb.day = dayName(entry, rb);
+  const pain = entry.marks.filter(m => m.s === 'pain').map(m => m.r);
+  if (pain.length && rb.suggestion.call === 'train') rb.suggestion.call = 'modify';
+  return { ...rb, by, notice, facts, pain, at: new Date().toISOString(), mornings: all.filter(e => e.date < entry.date).length + 1 };
+}
+
+/* ---------- State ---------- */
+const caps = { owner: false };
+let ownerKey = null;
+const S = {
+  mode: 'loading', live: [], demo: [], tab: 'today', histView: store.get('soma-hist-view') === 'calendar' ? 'calendar' : 'list', calMode: 'month', calCursor: null, calSel: null, calPinned: false, viewSide: 'front', last: null, cleared: null, adding: false,
+  editing: false, openDate: null, busy: false, status: '', draft: null, liveError: ''
+};
+const entries = () => S.mode === 'live' ? S.live : S.demo;
+const entryFor = d => entries().find(e => e.date === d);
+function freshDraft(from) {
+  return from ? { marks: from.marks.map(m => ({ r: m.r, s: m.s })), energy: from.energy, yesterday: { rest: (from.yesterday?.tags || []).includes('Rest'), sessions: sessionsOf(from.yesterday).map(x => ({ ...x })) }, note: from.note || '' }
+    : { marks: [], energy: null, yesterday: { rest: false, sessions: [] }, note: '' };
+}
+
+/* ---------- Body map rendering ---------- */
+let gradN = 0;
+function figure(side, opts = {}) {
+  const b = BODY[side], g = 'outlineGrad'; gradN++;
+  const id = `${g}${gradN}`;
+  const marks = opts.marks || [], heat = opts.heat || null;
+  const paths = b.paths.map(p => {
+    const fr = p.e ? ' fill-rule="evenodd"' : '';
+    if (p.k !== 'm') return `<path class="${p.k}"${fr} d="${p.d}"${p.k === 'o' ? ` style="fill:url(#${id})"` : ''}/>`;
+    let cls = 'm';
+    const mk = markFor(marks, p);
+    if (mk) cls += ` s-${mk.s}${opts.live && S.last && S.last.r === p.r ? ' last' : ''}`;
+    else if (heat && heat[p.g]) cls += ' h' + (heat[p.g] >= 5 ? 3 : heat[p.g] >= 3 ? 2 : 1);
+    const a11y = opts.live ? ` tabindex="0" role="button" aria-label="${esc(labelOf(p.r))}"` : '';
+    return `<path class="${cls}" data-r="${p.r}"${fr} d="${p.d}"${a11y}><title>${esc(labelOf(p.r))}</title></path>`;
+  }).join('');
+  // The front is mirrored, so the body's left is on the screen's left in both views.
+  const w = b.vb.split(/\s+/)[2];
+  return `<svg class="figure${opts.live ? ' live' : ''}" viewBox="${b.vb}" role="img" aria-label="${side === 'front' ? 'Front' : 'Back'} of body" data-side="${side}">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".35" class="stop-a"/><stop offset="1" class="stop-b"/></linearGradient></defs><g${side === 'front' ? ` transform="matrix(-1 0 0 1 ${w} 0)"` : ''}>${paths}</g></svg>`;
+}
+// A mark names one block; marks saved before blocks existed name a whole muscle and light all of its blocks.
+const markFor = (marks, p) => marks.find(m => m.r === p.r) || marks.find(m => m.r === p.g);
+function paintFigure(svg, marks) {
+  svg.querySelectorAll('.m').forEach(el => {
+    el.setAttribute('class', 'm');
+    const mk = markFor(marks, { r: el.dataset.r, g: groupOf(el.dataset.r) });
+    if (mk) el.classList.add('s-' + mk.s);
+    if (mk && S.last && S.last.r === el.dataset.r && svg.classList.contains('live')) el.classList.add('last');
+  });
+}
+const repaintLive = () => document.querySelectorAll('#slides .figure').forEach(svg => paintFigure(svg, S.draft.marks));
+// The same body panel on every screen, so the map never moves when switching tabs.
+function bodyPanel(o = {}) {
+  const slides = ['front', 'back'].map(side => `<div class="slide"><span class="side-tag l">L</span><span class="side-tag r">R</span>${figure(side, { marks: o.marks, heat: o.heat, live: o.live })}<span class="slide-cap">${side === 'front' ? 'Front' : 'Back'}</span></div>`).join('');
+  return `<div class="mapwrap"><div class="slides" id="slides">${slides}</div>
+    <div class="maprow"><span></span><div class="toggle" role="group" aria-label="View"><button type="button" data-side="front" aria-pressed="${S.viewSide === 'front'}">Front</button><button type="button" data-side="back" aria-pressed="${S.viewSide === 'back'}">Back</button></div>${o.extra || '<span></span>'}</div></div>`;
+}
+const legend = () => `<div class="legend">${SENS.map(s => `<span><i class="d-${s.k}"></i>${s.label}</span>`).join('')}</div>`;
+
+/* ---------- Views ---------- */
+const view = document.getElementById('view'), dock = document.getElementById('dock');
+const setDock = html => { dock.innerHTML = `<div class="dock-box">${html}</div>`; };
+function setActions(actions, tabsOnPhone = true) {
+  setDock((tabsOnPhone ? tabsHtml() : '') + actions);
+  view.querySelectorAll('.actionbar').forEach(el => { el.innerHTML = actions; });
+}
+// The demo notice shows once per visit; closing it hides it until the site is opened again.
+let demoClosed = false;
+function demoDismissed() { if (demoClosed) return true; try { return sessionStorage.getItem('soma-demo-closed') === '1'; } catch (e) { return false; } }
+function closeDemo() { demoClosed = true; try { sessionStorage.setItem('soma-demo-closed', '1'); } catch (e) {} document.querySelectorAll('.demo-wrap').forEach(el => el.remove()); }
+function header(opts = {}) {
+  const name = opts.title || (S.mode === 'live' ? 'Morning, Tiria.' : 'Morning.');
+  const eyebrow = opts.eyebrow || fmtDay(TODAY);
+  let banner = '';
+  if (S.mode === 'demo' && !demoDismissed()) banner = `<div class="demo-wrap"><details class="demo"><summary><span class="dot"></span>Demo journal · example data</summary><p>Four weeks of example mornings, so the patterns have something to work with. Anything you log here stays in this browser.</p></details><button type="button" class="demo-x" data-act="closedemo" aria-label="Close the demo notice"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>`;
+  if (S.mode === 'live' && S.liveError) banner = `<div class="banner">${esc(S.liveError)}</div>`;
+  return `<div class="greet"><span class="date">${esc(eyebrow)}</span><h1>${esc(name)}</h1></div>${banner}`;
+}
+function render() {
+  if (S.mode === 'loading') return;
+  document.getElementById('mode').hidden = !caps.owner;
+  document.getElementById('ownerBtn').textContent = caps.owner ? 'Lock' : 'Owner sign-in';
+  document.getElementById('toptabs').innerHTML = tabsHtml();
+  document.getElementById('modeLive').setAttribute('aria-pressed', S.mode === 'live');
+  document.getElementById('modeDemo').setAttribute('aria-pressed', S.mode === 'demo');
+  if (S.tab === 'history' && S.openDate) return renderDay(S.openDate, true);
+  if (S.tab === 'history') return renderHistory();
+  const today = entryFor(TODAY);
+  if (today && !S.editing) return renderDay(TODAY, false);
+  renderLog();
+}
+function tabsHtml() {
+  return `<div class="tabs" role="group" aria-label="Sections"><button type="button" data-tab="today" aria-pressed="${S.tab === 'today'}">Today</button><button type="button" data-tab="history" aria-pressed="${S.tab === 'history'}">History</button></div>`;
+}
+
+function renderLog() {
+  if (!S.draft) S.draft = freshDraft(S.editing ? entryFor(TODAY) : null);
+  const d = S.draft;
+  view.innerHTML = `<div class="layout log"><div class="a-head">${header()}</div>
+  <div class="a-ctrl"><section class="sect">
+    <h2>${S.editing ? 'Edit this morning’s log' : 'How does your body feel this morning?'}</h2>
+    <p class="hint">Tap an area once for tight. Each tap goes one step stronger, through tender and sore to pain. A fifth tap clears it.</p>
+    <div class="scale" id="scale" aria-hidden="true">${scaleHtml()}</div>
+    <p class="def" id="sensDef" aria-live="polite">${defLine()}</p>
+  </section></div>
+  <div class="a-map">${bodyPanel({ marks: d.marks, live: true, extra: `<button type="button" class="clearmap" data-act="clearmap" ${d.marks.length ? '' : 'disabled'}>Clear all</button>` })}</div>
+  <div class="a-rest"><section class="sect"><p class="label">Marked</p><div class="marks" id="marks"></div></section>
+  <section class="sect"><p class="label">Yesterday’s training</p><div id="training" class="sect"></div></section>
+  <section class="sect"><p class="label">Energy</p><div class="chips" role="group" aria-label="Energy">${ENERGY.map(e => `<button type="button" class="chip" data-energy="${e}" aria-pressed="${d.energy === e}">${e}</button>`).join('')}</div></section>
+  <section class="sect"><label class="label" for="note">Note</label><div class="notewrap"><textarea id="note" maxlength="500" placeholder="Anything else your body is telling you">${esc(d.note)}</textarea><button type="button" class="mic" id="mic" aria-pressed="false" aria-label="Dictate your note" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button></div><p class="hint" id="micStatus" hidden></p></section>
+  <p class="status" id="status">${esc(S.status)}</p><div class="actionbar"></div></div></div>`;
+  renderMarks(); renderTraining(); setupMic(); setupSlides();
+  setActions(`${S.editing ? '<button type="button" class="btn ghost" data-act="cancel">Cancel</button>' : ''}<button type="button" class="btn primary" data-act="save" ${S.busy ? 'disabled' : ''}>${S.busy ? 'Reading…' : 'Save and read'}</button>`, !S.editing);
+}
+function renderMarks() {
+  const d = S.draft, el = document.getElementById('marks'); if (!el) return;
+  el.innerHTML = d.marks.length ? [...d.marks].sort((a, b) => RANK[b.s] - RANK[a.s]).map(m => `<div class="mark" data-s="${m.s}"><span class="name">${esc(labelOf(m.r))}</span><span class="meta"><b>${SENS_BY[m.s].label}</b> · ${SENS_BY[m.s].short}</span><button type="button" data-unmark="${m.r}" aria-label="Remove ${esc(labelOf(m.r))}">×</button></div>`).join('')
+    : `<p class="empty">Nothing marked yet. A clear morning is worth logging too.</p>`;
+}
+const LEVELS = [null, 'tight', 'tender', 'sore', 'pain'];
+const scaleHtml = () => SENS.map(x => `<span class="lvl" data-s="${x.k}" data-on="${!!S.last && S.last.s === x.k}">${x.label}</span>`).join('');
+function defLine() {
+  if (S.cleared) return `Cleared ${S.cleared.length} ${S.cleared.length === 1 ? 'area' : 'areas'}. <button type="button" class="linkbtn" data-act="undoclear">Undo</button>`;
+  if (!S.last) return '';
+  if (!S.last.s) return `<b>${esc(labelOf(S.last.r))}</b> cleared.`;
+  const x = SENS_BY[S.last.s];
+  return `<b>${esc(labelOf(S.last.r))}: ${x.label}.</b> ${x.def}`;
+}
+function refreshLog() {
+  repaintLive(); renderMarks();
+  const sc = document.getElementById('scale'); if (sc) sc.innerHTML = scaleHtml();
+  const df = document.getElementById('sensDef'); if (df) df.innerHTML = defLine();
+  document.querySelectorAll('[data-act="clearmap"]').forEach(b => { b.disabled = !S.draft.marks.length; });
+}
+function setSide(side, smooth) {
+  S.viewSide = side;
+  const sl = document.getElementById('slides');
+  if (sl && sl.scrollWidth > sl.clientWidth + 2) sl.scrollTo({ left: side === 'back' ? sl.clientWidth : 0, behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
+  document.querySelectorAll('[data-side]').forEach(b => b.matches('button') && b.setAttribute('aria-pressed', b.dataset.side === side));
+}
+function setupSlides() {
+  const sl = document.getElementById('slides'); if (!sl) return;
+  setSide(S.viewSide, false);
+  let timer;
+  sl.addEventListener('scroll', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { const side = sl.scrollLeft > sl.clientWidth / 2 ? 'back' : 'front'; if (side !== S.viewSide) { S.viewSide = side; document.querySelectorAll('button[data-side]').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === side)); } }, 60);
+  }, { passive: true });
+}
+function customTags() {
+  const seen = new Set(TAGS);
+  const list = [...(store.get('soma-custom-tags') || []), ...[...S.live, ...S.demo].flatMap(e => sessionsOf(e.yesterday).map(x => x.tag))];
+  return list.filter(t => typeof t === 'string' && t && !seen.has(t) && (seen.add(t), true));
+}
+function renderTraining() {
+  const el = document.getElementById('training'); if (!el) return;
+  const y = S.draft.yesterday, picked = t => t === 'Rest' ? y.rest : y.sessions.some(x => x.tag === t);
+  const plus = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  el.innerHTML = `<div class="chips" role="group" aria-label="Yesterday's training">${[...TAGS, ...customTags()].map(t => `<button type="button" class="chip" data-ytag="${esc(t)}" aria-pressed="${picked(t)}">${esc(t)}</button>`).join('')}<button type="button" class="chip add" data-addtag aria-label="Add a training">${plus}Add</button></div>
+  ${S.adding ? `<form class="addform" id="addForm"><input id="newTag" maxlength="24" placeholder="Name the training, e.g. Climbing" aria-label="Training name" autocomplete="off"><button type="submit" class="btn primary">Add</button><button type="button" class="btn ghost" data-canceladd>Cancel</button></form>` : ''}
+  ${y.sessions.length ? `<div class="sessions">${y.sessions.map((x, i) => `<div class="session"><div class="session-head"><span class="sname">${esc(x.tag)}</span><span class="shint">${x.effort ? '' : 'How hard was it?'}</span></div><div class="seg4" role="group" aria-label="${esc(x.tag)} effort">${EFFORT.map(e => `<button type="button" data-sess="${i}" data-eff="${e}" aria-pressed="${x.effort === e}">${e}</button>`).join('')}</div></div>`).join('')}</div>` : ''}`;
+}
+function toggleTag(tag) {
+  const y = S.draft.yesterday;
+  if (tag === 'Rest') { y.rest = !y.rest; if (y.rest) y.sessions = []; return; }
+  y.rest = false;
+  const i = y.sessions.findIndex(x => x.tag === tag);
+  if (i >= 0) y.sessions.splice(i, 1); else y.sessions.push({ tag, effort: null });
+}
+function addCustomTag(raw) {
+  const name = raw.replace(/\s+/g, ' ').trim().slice(0, 24);
+  if (!name) return;
+  const tag = name.charAt(0).toUpperCase() + name.slice(1);
+  const existing = [...TAGS, ...customTags()].find(t => t.toLowerCase() === tag.toLowerCase());
+  if (!existing) store.set('soma-custom-tags', [...(store.get('soma-custom-tags') || []), tag]);
+  const use = existing || tag;
+  if (!S.draft.yesterday.sessions.some(x => x.tag === use)) toggleTag(use);
+}
+
+/* Voice note: the browser's own speech recognition, where available */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function setupMic() { const b = document.getElementById('mic'); if (b) { b.hidden = !SpeechRec; b.setAttribute('aria-pressed', String(!!rec)); } }
+function toggleMic() {
+  const b = document.getElementById('mic'), st = document.getElementById('micStatus'), ta = document.getElementById('note');
+  if (rec) { rec.stop(); return; }
+  try {
+    rec = new SpeechRec(); rec.lang = navigator.language || 'en-GB'; rec.interimResults = true; rec.continuous = true;
+    const base = ta.value.trim() ? ta.value.trim() + ' ' : ''; let finalText = '';
+    rec.onresult = e => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript; }
+      ta.value = (base + finalText + interim).slice(0, 500); if (S.draft) S.draft.note = ta.value;
+    };
+    rec.onerror = e => { st.hidden = false; st.textContent = (e.error === 'not-allowed' || e.error === 'service-not-allowed') ? 'Microphone access is blocked. Allow it in your browser settings to dictate.' : e.error === 'no-speech' ? 'Didn’t catch anything. Tap the microphone and try again.' : 'Dictation stopped.'; };
+    rec.onend = () => { rec = null; const bb = document.getElementById('mic'); if (bb) bb.setAttribute('aria-pressed', 'false'); const s2 = document.getElementById('micStatus'); if (s2 && s2.dataset.listening) { s2.hidden = true; delete s2.dataset.listening; } };
+    rec.start();
+    b.setAttribute('aria-pressed', 'true'); st.hidden = false; st.dataset.listening = '1'; st.textContent = 'Listening. Tap the microphone again to stop.';
+  } catch (err) { rec = null; st.hidden = false; st.textContent = 'Dictation isn’t available in this browser.'; }
+}
+
+// Tap to step through: tight, tender, sore, pain, then clear.
+function toggleRegion(r) {
+  const d = S.draft, i = d.marks.findIndex(m => m.r === r);
+  const next = LEVELS[(LEVELS.indexOf(i >= 0 ? d.marks[i].s : null) + 1) % LEVELS.length];
+  if (!next) d.marks.splice(i, 1); else if (i >= 0) d.marks[i].s = next; else d.marks.push({ r, s: next });
+  S.last = { r, s: next }; S.cleared = null;
+  refreshLog();
+}
+
+function renderDay(date, fromHistory) {
+  const e = entryFor(date);
+  if (!e) { S.openDate = null; return render(); }
+  const rb = e.readback;
+  const pending = !rb;
+  const factMap = Object.fromEntries((rb?.facts || []).map(f => [f.id, f]));
+  const conf = rb ? ['low', 'medium', 'high'].indexOf(rb.confidence) + 1 : 0;
+  view.innerHTML = `<div class="layout read"><div class="a-head">${fromHistory ? `<button type="button" class="back" id="backHist">← History</button><div class="greet"><span class="date">${fmtDay(date)}</span><h1>${esc(rb && rb.day ? rb.day + '.' : e.marks.length ? e.marks.length + (e.marks.length === 1 ? ' area marked' : ' areas marked') : 'A clear morning')}</h1></div>` : header(rb && rb.day ? { title: rb.day + '.' } : {})}</div>
+  <div class="a-rest">${pending ? `<div class="coach"><span class="byline">${S.busy ? 'Reading your body…' : 'Logged, not read yet'}</span><h2 class="writing">${S.busy ? 'Looking across your recent mornings.' : 'This morning has no read-back yet.'}</h2>${S.busy ? '' : '<button type="button" class="btn primary" id="reread" style="align-self:flex-start;flex:none">Read it now</button>'}</div>` : `
+  <div class="coach">
+    <span class="byline">${rb.by === 'claude' ? 'Read by Claude' : 'Read by fixed rules'} · from ${rb.mornings} ${rb.mornings === 1 ? 'morning' : 'mornings'}</span>
+    <h2>${esc(rb.headline)}</h2>
+    ${rb.read ? `<p>${esc(rb.read)}</p>` : ''}
+    ${rb.notice ? `<p class="byline">${esc(rb.notice)}</p>` : ''}
+  </div>
+  ${rb.pain && rb.pain.length ? `<div class="rule"><p class="label">Fixed rule</p><p>Pain marked on ${esc(rb.pain.map(r => lc(labelOf(r))).join(', '))}. SomaLoop doesn’t make training calls on pain: leave this area unloaded today. If it is sharp, or still there in three days, get it checked by a physio or doctor.</p></div>` : ''}
+  <div class="card"><p class="label">Suggestion</p>${rb.suggestion.title ? `<h3>${esc(rb.suggestion.title)}</h3>` : ''}${rb.suggestion.steps.length ? `<ul class="steps">${rb.suggestion.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}</div>
+  ${rb.patterns.length ? `<div class="card"><p class="label">Patterns</p>${rb.patterns.map((p, pi) => `<div class="pattern"><p>${esc(p.text)}</p>${p.facts.length ? `<div class="ev">${p.facts.map(f => `<button type="button" data-ev="${pi}-${f}" aria-expanded="false">${f}</button>`).join('')}</div><div class="evtext" id="ev-${pi}" hidden></div>` : ''}</div>`).join('')}</div>` : ''}
+  <div class="card"><div class="conf"><span class="meter" aria-hidden="true">${[1, 2, 3].map(k => `<i class="${k <= conf ? 'on' : ''}"></i>`).join('')}</span><span><b style="font-weight:500">${rb.confidence[0].toUpperCase() + rb.confidence.slice(1)} confidence.</b> ${esc(rb.confidence_reason)}</span></div>${rb.tomorrow ? `<p style="margin:0;color:var(--ink-2);font-size:14px">Tomorrow, notice: ${esc(rb.tomorrow)}</p>` : ''}</div>`}
+  ${rb ? `<details class="how"><summary>How this was read</summary><ol>${rb.facts.map(f => `<li><code>${f.id}</code><span>${esc(f.text)}${f.dates.length ? `<br><span style="color:var(--ink-3);font-size:12.5px">${f.dates.map(fmtShort).join(', ')}</span>` : ''}</span></li>`).join('')}</ol><p class="fine">The facts are counted from your log by fixed rules. ${rb.by === 'claude' ? 'Claude writes the wording and has to point to these facts for every pattern.' : 'Claude was not available, so the wording also comes from the rules.'} Pain is always handled by a fixed rule.</p></details>` : ''}<div class="actionbar"></div></div>
+  <div class="a-map">${bodyPanel({ marks: e.marks })}
+  ${legend()}</div></div>`;
+  setupSlides();
+  view.querySelectorAll('[data-ev]').forEach(btn => btn.addEventListener('click', () => {
+    const [pi, fid] = btn.dataset.ev.split('-'); const box = document.getElementById('ev-' + pi);
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    view.querySelectorAll(`[data-ev^="${pi}-"]`).forEach(b => b.setAttribute('aria-expanded', 'false'));
+    if (open) { box.hidden = true; return; }
+    btn.setAttribute('aria-expanded', 'true'); const f = factMap[fid];
+    box.innerHTML = f ? `${esc(f.text)}${f.dates.length ? `<br>${f.dates.map(fmtShort).join(', ')}` : ''}` : 'Fact not found.'; box.hidden = false;
+  }));
+  setActions(fromHistory ? '' : '<button type="button" class="btn ghost" data-act="edit" style="flex:1">Edit this morning</button>');
+}
+
+/* ---------- Calendar ---------- */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const strongest = e => e.marks.reduce((top, m) => RANK[m.s] > (RANK[top] || 0) ? m.s : top, null);
+function dayClass(date, byDate) {
+  const e = byDate[date];
+  let c = date > TODAY ? 'future' : !e ? 'empty' : e.marks.length ? 'lv-' + strongest(e) : 'clear';
+  if (date === TODAY) c += ' today';
+  if (date === S.calSel) c += S.calPinned ? ' sel pin' : ' sel';
+  return c;
+}
+function dayLabel(date, byDate) {
+  const e = byDate[date];
+  return `${fmtDay(date)}: ${date > TODAY ? 'not yet' : !e ? 'nothing logged' : e.marks.length ? e.marks.length + (e.marks.length === 1 ? ' area marked' : ' areas marked') : 'clear morning'}`;
+}
+function monthCells(y, m, byDate) {
+  const first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+  let html = '<span class="cblank"></span>'.repeat(lead);
+  for (let d = 1; d <= days; d++) {
+    const date = isoDate(new Date(y, m, d));
+    html += `<button type="button" class="cday ${dayClass(date, byDate)}" data-day="${date}" aria-label="${esc(dayLabel(date, byDate))}" ${date > TODAY ? 'disabled' : ''}></button>`;
+  }
+  return html;
+}
+function dayDetail(date, byDate) {
+  const e = byDate[date];
+  const head = `<div class="cd-head"><span class="date">${fmtDay(date)}</span>${S.calPinned ? '<button type="button" class="cd-pin" data-unpin aria-label="Unpin this day">Pinned <span aria-hidden="true">×</span></button>' : ''}</div>`;
+  if (!e) return `${head}<p class="cd-title">${date > TODAY ? 'Not yet' : 'Nothing logged'}</p>`;
+  const marks = [...e.marks].sort((a, b) => RANK[b.s] - RANK[a.s]);
+  const callLabel = { train: 'train as planned', modify: 'adjust training', rest: 'rest' };
+  return `${head}
+    <p class="cd-title">${marks.length ? marks.length + (marks.length === 1 ? ' area marked' : ' areas marked') : 'A clear morning'}</p>
+    ${marks.length ? `<div class="cd-marks">${marks.slice(0, 5).map(m => `<span class="cd-mark" data-s="${m.s}">${esc(labelOf(m.r))}<b>${SENS_BY[m.s].label}</b></span>`).join('')}${marks.length > 5 ? `<span class="cd-more">and ${marks.length - 5} more</span>` : ''}</div>` : ''}
+    <p class="cd-meta">${esc(trainingText(e.yesterday) ? 'After ' + trainingText(e.yesterday) : 'Training not logged')}${e.energy ? ' · ' + e.energy.toLowerCase() + ' energy' : ''}</p>
+    ${e.readback ? `<p class="cd-meta">Suggested: ${callLabel[e.readback.suggestion.call]}</p>` : ''}
+    <button type="button" class="linkbtn cd-open" data-open="${date}">Open this morning</button>`;
+}
+function calendarHtml() {
+  const byDate = Object.fromEntries(entries().map(e => [e.date, e]));
+  if (!S.calCursor) S.calCursor = TODAY.slice(0, 7) + '-01';
+  if (!S.calSel) S.calSel = byDate[TODAY] ? TODAY : (Object.keys(byDate).filter(d => d <= TODAY).sort().pop() || TODAY);
+  const cur = fromIso(S.calCursor), y = cur.getFullYear(), m = cur.getMonth();
+  const year = S.calMode === 'year';
+  const title = year ? String(y) : `${MONTHS[m]} ${y}`;
+  const atEnd = year ? y >= +TODAY.slice(0, 4) : S.calCursor >= TODAY.slice(0, 7) + '-01';
+  const grid = year
+    ? `<div class="cyear">${MONTHS.map((name, mi) => `<div class="cmonth"><span class="cm-name">${name.slice(0, 3)}</span><div class="cgrid mini">${monthCells(y, mi, byDate)}</div></div>`).join('')}</div>`
+    : `<div class="cgrid"><span class="cwk">M</span><span class="cwk">T</span><span class="cwk">W</span><span class="cwk">T</span><span class="cwk">F</span><span class="cwk">S</span><span class="cwk">S</span>${monthCells(y, m, byDate)}</div>`;
+  return `<div class="cal card">
+    <div class="cal-head"><div class="cal-nav"><button type="button" data-calnav="-1" aria-label="Previous ${year ? 'year' : 'month'}">‹</button><span class="cal-title">${title}</span><button type="button" data-calnav="1" aria-label="Next ${year ? 'year' : 'month'}" ${atEnd ? 'disabled' : ''}>›</button></div>
+      <div class="mini-tabs" role="group" aria-label="Calendar range"><button type="button" data-calmode="month" aria-pressed="${!year}">Month</button><button type="button" data-calmode="year" aria-pressed="${year}">Year</button></div></div>
+    <div class="calwrap ${year ? 'is-year' : 'is-month'}">${grid}<div class="cal-detail" id="calDetail" aria-live="polite">${dayDetail(S.calSel, byDate)}</div></div>
+    <div class="cal-key"><span><i class="k lv-tight"></i>Tight</span><span><i class="k lv-tender"></i>Tender</span><span><i class="k lv-sore"></i>Sore</span><span><i class="k lv-pain"></i>Pain</span><span><i class="k clear"></i>Clear</span></div>
+  </div>`;
+}
+// Hover previews a day; a click or tap pins it so the details stay put. Clicking the pinned day again releases it.
+function showDay(date) {
+  S.calSel = date;
+  const byDate = Object.fromEntries(entries().map(e => [e.date, e]));
+  document.querySelectorAll('.cday.sel').forEach(b => b.classList.remove('sel', 'pin'));
+  document.querySelectorAll(`.cday[data-day="${date}"]`).forEach(b => { b.classList.add('sel'); if (S.calPinned) b.classList.add('pin'); });
+  const det = document.getElementById('calDetail'); if (det) det.innerHTML = dayDetail(date, byDate);
+}
+function previewDay(date) { if (date && date <= TODAY && !S.calPinned && date !== S.calSel) showDay(date); }
+function pinDay(date) {
+  if (!date || date > TODAY) return;
+  S.calPinned = !(S.calPinned && S.calSel === date);
+  showDay(date);
+}
+
+function renderHistory() {
+  const all = [...entries()].sort((a, b) => a.date < b.date ? 1 : -1);
+  const recent = all.filter(e => dayDiff(TODAY, e.date) < 14);
+  const heat = {}, sensCount = {};
+  recent.forEach(e => { new Set(e.marks.map(m => groupOf(m.r))).forEach(g => heat[g] = (heat[g] || 0) + 1); e.marks.forEach(m => { const g = groupOf(m.r); sensCount[g] = sensCount[g] || {}; sensCount[g][m.s] = (sensCount[g][m.s] || 0) + 1; }); });
+  const tops = Object.entries(heat).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const max = Math.max(1, ...tops.map(t => t[1]));
+  view.innerHTML = `<div class="layout hist"><div class="a-head">${header({ eyebrow: `${all.length} ${all.length === 1 ? 'morning' : 'mornings'} logged`, title: 'History' })}<section class="sect"><h2>Last 14 days</h2><p class="hint">Darker areas on the body were flagged on more mornings.</p></section></div>
+  <div class="a-map">
+  ${bodyPanel({ heat })}
+  <div class="legend"><span><i style="background:var(--heat);opacity:.25"></i>1–2 mornings</span><span><i style="background:var(--heat);opacity:.55"></i>3–4</span><span><i style="background:var(--heat);opacity:.9"></i>5 or more</span></div></div>
+  <div class="a-rest">${tops.length ? `<div class="card"><p class="label">Most flagged</p><div class="tops">${tops.map(([r, c]) => { const s = Object.entries(sensCount[r]).sort((a, b) => b[1] - a[1])[0][0]; return `<div class="top-row"><span>${esc(regionLabel(r))} <span style="color:var(--ink-3);font-size:13px">· mostly ${s}</span></span><span class="bar"><i style="width:${c / max * 100}%"></i></span><span class="num">${c}</span></div>`; }).join('')}</div></div>` : ''}
+  <section class="sect"><div class="sect-head"><p class="label">Mornings</p><div class="mini-tabs" role="group" aria-label="Show mornings as"><button type="button" data-hview="list" aria-pressed="${S.histView === 'list'}">List</button><button type="button" data-hview="calendar" aria-pressed="${S.histView === 'calendar'}">Calendar</button></div></div>${S.histView === 'calendar' ? calendarHtml() : `<div class="rows">${all.length ? all.map(e => `<button type="button" class="row" data-open="${e.date}"><span class="d">${fmtShort(e.date)}</span><span class="sum"><span class="dots">${e.marks.length ? e.marks.map(m => `<i class="d-${m.s}" title="${esc(labelOf(m.r))}"></i>`).join('') : '<span style="color:var(--ink-3);font-size:13px">Clear</span>'}</span><small>${esc(trainingText(e.yesterday) ? 'After ' + trainingText(e.yesterday) : 'Training not logged')}${e.energy ? ' · ' + e.energy.toLowerCase() + ' energy' : ''}</small></span><span class="callmini">${e.readback ? { train: 'as planned', modify: 'adjust', rest: 'rest' }[e.readback.suggestion.call] : ''}</span></button>`).join('') : '<p class="empty">No mornings logged yet. Your first log starts the history.</p>'}</div>`}</section></div></div>`;
+  setActions(''); setupSlides();
+}
+
+/* ---------- Persistence ---------- */
+async function persist(entry) {
+  if (S.mode === 'live') {
+    const r = await fetch('/api/journal', { method: 'PUT', headers: { 'content-type': 'application/json', 'x-owner-key': ownerKey }, body: JSON.stringify(entry) });
+    if (!r.ok) throw { code: r.status === 401 ? 'locked' : 'save_failed' };
+    const i = S.live.findIndex(e => e.date === entry.date); if (i >= 0) S.live[i] = entry; else S.live.push(entry);
+  } else {
+    const i = S.demo.findIndex(e => e.date === entry.date); if (i >= 0) S.demo[i] = entry; else S.demo.push(entry);
+    store.set('soma-demo-own', S.demo.filter(e => !e.demo));
+  }
+}
+async function saveAndRead() {
+  if (S.busy) return;
+  const d = S.draft; d.note = (document.getElementById('note')?.value || '').trim().slice(0, 500);
+  const prev = entryFor(TODAY);
+  if (rec) rec.stop();
+  const entry = { date: TODAY, marks: d.marks, energy: d.energy, yesterday: packYesterday(d.yesterday), note: d.note, createdAt: prev?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+  S.busy = true; S.status = 'Saving…'; render();
+  try { await persist(entry); }
+  catch (e) { S.busy = false; S.status = e?.code === 'quota_exceeded' ? 'Your journal is full. Remove old mornings before adding more.' : 'Could not save. Check your connection and try again.'; return render(); }
+  S.editing = false; S.draft = null; S.status = ''; render();
+  entry.readback = await readBody(entry, entries());
+  try { await persist(entry); } catch (e) {}
+  S.busy = false; render();
+}
+async function reread(date) {
+  const e = entryFor(date); if (!e || S.busy) return;
+  S.busy = true; render();
+  e.readback = await readBody(e, entries());
+  try { await persist(e); } catch (err) {}
+  S.busy = false; render();
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('button, path.m'); if (!t) return;
+  if (t.id === 'ownerBtn') {
+    if (caps.owner) { lock(); return render(); }
+    const f = document.getElementById('ownerForm'); f.hidden = !f.hidden; if (!f.hidden) document.getElementById('ownerKey').focus(); return;
+  }
+  if (t.id === 'ownerCancel') { document.getElementById('ownerForm').hidden = true; document.getElementById('ownerStatus').textContent = ''; return; }
+  if (t.matches('#modeLive') && caps.owner) { S.mode = 'live'; S.draft = null; S.editing = false; S.openDate = null; return render(); }
+  if (t.matches('#modeDemo')) { S.mode = 'demo'; S.draft = null; S.editing = false; S.openDate = null; return render(); }
+  if (t.dataset.tab) { S.tab = t.dataset.tab; S.openDate = null; window.scrollTo(0, 0); return render(); }
+  if (t.dataset.side) return setSide(t.dataset.side, true);
+  if (t.dataset.act === 'clearmap') { if (!S.draft.marks.length) return; S.cleared = S.draft.marks; S.draft.marks = []; S.last = null; return refreshLog(); }
+  if (t.dataset.act === 'undoclear') { if (S.cleared) { S.draft.marks = S.cleared; S.cleared = null; } return refreshLog(); }
+  if (t.matches('path.m') && t.closest('.figure.live')) return toggleRegion(t.dataset.r);
+  if (t.dataset.unmark) { S.draft.marks = S.draft.marks.filter(m => m.r !== t.dataset.unmark); S.last = { r: t.dataset.unmark, s: null }; S.cleared = null; return refreshLog(); }
+  if (t.dataset.ytag) { toggleTag(t.dataset.ytag); return renderTraining(); }
+  if (t.dataset.eff) { const x = S.draft.yesterday.sessions[+t.dataset.sess]; if (x) x.effort = x.effort === t.dataset.eff ? null : t.dataset.eff; return renderTraining(); }
+  if (t.hasAttribute('data-addtag')) { S.adding = true; renderTraining(); document.getElementById('newTag')?.focus(); return; }
+  if (t.hasAttribute('data-canceladd')) { S.adding = false; return renderTraining(); }
+  if (t.id === 'mic') return toggleMic();
+  if (t.dataset.energy) { S.draft.energy = S.draft.energy === t.dataset.energy ? null : t.dataset.energy; view.querySelectorAll('[data-energy]').forEach(b => b.setAttribute('aria-pressed', b.dataset.energy === S.draft.energy)); return; }
+  if (t.dataset.act === 'closedemo') return closeDemo();
+  if (t.dataset.act === 'save') return saveAndRead();
+  if (t.dataset.act === 'edit') { S.editing = true; S.draft = null; S.last = null; S.cleared = null; window.scrollTo(0, 0); return render(); }
+  if (t.dataset.act === 'cancel') { S.editing = false; S.draft = null; return render(); }
+  if (t.id === 'reread') return reread(S.openDate || TODAY);
+  if (t.dataset.day) return pinDay(t.dataset.day);
+  if (t.hasAttribute('data-unpin')) { S.calPinned = false; return showDay(S.calSel); }
+  if (t.dataset.hview) { S.histView = t.dataset.hview; store.set('soma-hist-view', S.histView); return render(); }
+  if (t.dataset.calmode) { S.calMode = t.dataset.calmode; return render(); }
+  if (t.dataset.calnav) {
+    const c = fromIso(S.calCursor || TODAY.slice(0, 7) + '-01'), step = +t.dataset.calnav;
+    const next = S.calMode === 'year' ? new Date(c.getFullYear() + step, 0, 1) : new Date(c.getFullYear(), c.getMonth() + step, 1);
+    S.calCursor = isoDate(next); return render();
+  }
+  if (t.dataset.open) { S.openDate = t.dataset.open; window.scrollTo(0, 0); return render(); }
+  if (t.id === 'backHist') { S.openDate = null; return render(); }
+});
+document.addEventListener('mouseover', ev => {
+  const d = ev.target.closest && ev.target.closest('.cday');
+  if (d && matchMedia('(hover: hover)').matches) previewDay(d.dataset.day);
+});
+document.addEventListener('input', ev => { if (ev.target.id === 'note' && S.draft) S.draft.note = ev.target.value; });
+document.addEventListener('submit', ev => {
+  if (ev.target.id !== 'addForm') return;
+  ev.preventDefault(); addCustomTag(document.getElementById('newTag').value); S.adding = false; renderTraining();
+});
+document.addEventListener('keydown', ev => {
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('.figure.live path.m')) { ev.preventDefault(); toggleRegion(ev.target.dataset.r); }
+});
+
+/* ---------- Owner access ---------- */
+const validEntry = e => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && Array.isArray(e.marks);
+async function unlock(key) {
+  try {
+    const r = await fetch('/api/journal', { headers: { 'x-owner-key': key } });
+    if (r.ok) {
+      const j = await r.json();
+      S.live = (j.entries || []).filter(validEntry);
+      caps.owner = true; ownerKey = key; store.set('soma-owner-key', key);
+      S.mode = 'live'; S.draft = null; S.last = null; S.cleared = null; S.editing = false; S.openDate = null; S.tab = 'today';
+      return 'ok';
+    }
+    if (r.status === 401) { store.set('soma-owner-key', null); return 'wrong'; }
+    return r.status === 503 ? 'storage' : 'error';
+  } catch (e) { return 'offline'; }
+}
+function lock() {
+  caps.owner = false; ownerKey = null; store.set('soma-owner-key', null);
+  S.live = []; S.mode = 'demo'; S.draft = null; S.editing = false; S.openDate = null;
+}
+document.getElementById('ownerForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const input = document.getElementById('ownerKey'), status = document.getElementById('ownerStatus');
+  status.textContent = 'Checking…';
+  const res = await unlock(input.value);
+  status.textContent = { ok: '', wrong: 'That passcode didn’t work.', storage: 'Journal storage isn’t set up on the server yet.', error: 'The server couldn’t open the journal. Try again in a moment.', offline: 'Couldn’t reach the server. Check your connection.' }[res];
+  if (res === 'ok') { input.value = ''; document.getElementById('ownerForm').hidden = true; render(); }
+});
+
+/* ---------- Start ---------- */
+(async function start() {
+  const own = (store.get('soma-demo-own') || []).filter(validEntry);
+  S.demo = [...makeDemo().filter(g => !own.some(o => o.date === g.date)), ...own];
+  const key = store.get('soma-owner-key');
+  if (key && await unlock(key) === 'ok') return render();
+  S.mode = 'demo'; render();
+})();
+</script>
+</body>
+</html>
